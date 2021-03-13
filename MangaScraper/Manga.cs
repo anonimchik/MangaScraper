@@ -21,9 +21,10 @@ namespace MangaScraper
 
         public List<String> Genres = new List<String>();
         public int PagesCount { set; get; }
-
-        public List<String> Image = new List<string>();
-        public List<String> Pages = new List<string>();
+        public List<String> Illustrator = new List<String>();
+        public List<String> Other = new List<String>();
+        public List<String> Image = new List<String>();
+        public List<String> Pages = new List<String>();
 
         /// <summary>
         /// 
@@ -117,58 +118,78 @@ namespace MangaScraper
         /// 
         /// </summary>
         /// <param name="drv"></param>
-        public void getMangaContent(IWebDriver drv)
+        public void getMangaContent(IWebDriver drv, Manga mng)
         {
-
+            /* |переработать считывание манг и манхв и маньхуа| */
             if (Regex.IsMatch(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']")).Text, "Информация о манге")) //поиск только манг
             {
-                Title = drv.FindElement(By.XPath(@"//span[@class='name']")).Text; //название манги
-                BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src"); //получение задней картины
+                mng.Title = drv.FindElement(By.XPath(@"//span[@class='name']")).Text; //название манги
+                mng.BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src"); //получение задней картины
                 try
                 {
-                   NumberChapters = int.Parse(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Substring(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") + 1, drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Length - drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") - 1)); //количество глав
+                    ICollection<IWebElement> illustrator = drv.FindElements(By.XPath(@"//span[@class='elem_illustrator ']/a")); //получение художника
+                    foreach (var _illustrator in illustrator) //перебор коллекции
+                    {
+                        Illustrator.Add(_illustrator.Text); //добавление в список художников
+                    }
+                }
+                catch(Exception e) { }
+
+                try
+                {
+                    ICollection<IWebElement> other = drv.FindElements(By.XPath(@"span[@class='elem_tag ']"));
+                    foreach (var _other in other)
+                    {
+                        Other.Add(_other.Text);
+                    }
+                }
+                catch(Exception e) { }
+
+                try
+                {
+                   mng.NumberChapters = int.Parse(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Substring(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") + 1, drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Length - drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") - 1)); //количество глав
                 }
                 catch (Exception e) { }
 
                 try
                 {
-                    NumberVolumes = int.Parse(Regex.Replace(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']/p[1]")).Text, @"Томов: ", "")); //получение кол-ва глав
+                    mng.NumberVolumes = int.Parse(Regex.Replace(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']/p[1]")).Text, @"Томов: ", "")); //получение кол-ва глав
                 }
                 catch (Exception e) { }
 
                 try
                 {
-                    TranslateStatus = Regex.Replace(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']/p[2]")).Text, @"Перевод: ", ""); //получение статуса перевода
+                    mng.TranslateStatus = Regex.Replace(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']/p[2]")).Text, @"Перевод: ", ""); //получение статуса перевода
                 }
                 catch (Exception e) { }
 
                 try
                 {
-                    ReleaseYear = int.Parse(drv.FindElement(By.XPath(@"//span[@class='elem_year ']/a")).Text); //получение года выпуска
+                    mng.ReleaseYear = int.Parse(drv.FindElement(By.XPath(@"//span[@class='elem_year ']/a")).Text); //получение года выпуска
                 }
                 catch (Exception e) { }
 
                 ICollection<IWebElement> genres = drv.FindElements(By.XPath(@"//span[@class='elem_genre ']/a")); //подготовка данных к заненсению в список Genres
                 foreach (var gnrs in genres) //запись данных в список Genres
                 {
-                    Genres.Add(gnrs.Text);
+                    mng.Genres.Add(gnrs.Text);
                 }
                 try
                 {
-                    Author = drv.FindElement(By.XPath(@"//span[@class='elem_author ']/a")).Text; //получение автора
+                    mng.Author = drv.FindElement(By.XPath(@"//span[@class='elem_author ']/a")).Text; //получение автора
                 }
                 catch (Exception e) { }
 
                 try
                 {
-                    Description = drv.FindElement(By.XPath(@"//div[@class='manga-description']")).Text; //получение описания
+                    mng.Description = drv.FindElement(By.XPath(@"//div[@class='manga-description']")).Text; //получение описания
                 }
                 catch (Exception e) { }
 
                 ICollection<IWebElement> chapter = drv.FindElements(By.XPath(@"//a[@class='cp-l']")); //получение ссылок на главы
                 foreach (var ch in chapter)
                 {
-                    Chapters.Add(ch.GetAttribute("href") + "|" + ch.Text);
+                    mng.Chapters.Add(ch.GetAttribute("href") + "|" + ch.Text);
                 }
 
             }
