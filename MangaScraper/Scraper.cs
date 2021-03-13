@@ -11,6 +11,7 @@ namespace MangaScraper
     {
         private string MainUrl;
         private List<String> MangaUrl = new List<String>();
+        private string NextPageUrl;
         private ICollection<IWebElement> PageUrl;
         private string Query;
         public void SetMainUrl(string mainUrl)
@@ -37,9 +38,13 @@ namespace MangaScraper
         {
             return Query;
         }
-        public void setManga()
+        public string getNextPageUrl()
         {
-
+            return NextPageUrl;
+        }
+        public void setNextPageUrl(string nextPageUrl)
+        {
+            NextPageUrl = nextPageUrl;
         }
     }
 }

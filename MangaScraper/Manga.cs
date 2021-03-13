@@ -23,6 +23,13 @@ namespace MangaScraper
         public int PagesCount { set; get; }
 
         public List<String> Image = new List<string>();
+        public List<String> Pages = new List<string>();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="sp"></param>
         public void ParserInit(IWebDriver driver, Scraper sp)
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
@@ -40,16 +47,86 @@ namespace MangaScraper
         {
             return (int)sp.GetMangaUrl().Count;
         }
-        public void ParseMainInfo(string url, IWebDriver drv, Scraper sp)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chapter"></param>
+        /// <param name="drv"></param>
+        public void parseImages(string chapter, IWebDriver drv)
         {
-            drv.Navigate().GoToUrl(url); //переход на страницу с конкретной мангой
+            drv.Navigate().GoToUrl(chapter.Substring(0, chapter.IndexOf("|")));
+            int LastPage = int.Parse(drv.FindElement(By.XPath(@"//span[@class='pages-count']")).Text) - 1;
+            for (int i = 0; i <= LastPage; i++)
+            {
+                drv.Navigate().GoToUrl(chapter.Substring(0, chapter.IndexOf("|")) + "#page=" + i);
+                drv.Navigate().Refresh();
+                Image.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
+            }
+
+        }
+
+        /// <summary>
+        /// Функция для парсинга первой станицы списка манг (https://readmanga.live/list)
+        /// </summary>
+        /// <param name="drv">Объект driver интерфейса IWebDriver</param>
+        /// <param name="url">Результат выполнения метода GetMainUrl класса Parser</param>
+        /// <param name="sp">Объект sp класса Scraper</param>
+        public void ParseFirstListManga(IWebDriver drv, Scraper sp)
+        {
+            /*  |Парсинг первой страницы отдельно необходим для получение ссылки на следующую страницу|  */
+            ICollection<IWebElement> mangaUrl = drv.FindElements(By.XPath(@"//div[@class='desc']/h3/a")); //получение ссылок на манги
+            foreach (var mangaurl in mangaUrl) //перебор коллекции ссылок
+            {
+                sp.SetMangaUrl(mangaurl.GetAttribute("href")); //запиcь ссылок в список
+            }
+            ParsePageListOnCurrentPage(drv, sp); //парсинг списка манг
+        }
+
+        /// <summary>
+        /// Получение ссылок на все манги в каталоге
+        /// </summary>
+        /// <param name="drv">Объект driver интерфейса IWebDriver</param>
+        /// <param name="sp">Объект sp класса Scraper</param>
+        public void ParseAllMangaPage(IWebDriver drv, Scraper sp)
+        {
+            /*  |Парсинг ссылок на конкректную мангу|  */
+            ParsePageListOnCurrentPage(drv, sp); //парсинг списка манг
+            ICollection<IWebElement> mangaUrl = drv.FindElements(By.XPath(@"//div[@class='desc']/h3/a")); //получение ссылок на манги
+            foreach (var mangaurl in mangaUrl) //перебор коллекции ссылок
+            {
+                sp.SetMangaUrl(mangaurl.GetAttribute("href")); //запись ссылок в список
+            }
+        }
+
+        /// <summary>
+        /// Получение ссылки на следующую страницу
+        /// </summary>
+        /// <param name="drv">Объект driver интерфейса IWebDriver</param>
+        /// <param name="sp">Объект sp класса Scraper</param>
+        public void ParsePageListOnCurrentPage(IWebDriver drv, Scraper sp)
+        {
+            /*  |Парсинг ссылки на следующую страницу с катологом манг|  */
+            if(drv.FindElements(By.XPath(@"//a[@class='nextLink']")).Count > 0) //получение сслылки на следующую страницу
+            {
+                sp.setNextPageUrl(drv.FindElement(By.XPath(@"//a[@class='nextLink']")).GetAttribute("href")); //запись ссылки на следующую страницу в поле NextPageUrl класса Scraper
+            }
+
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="drv"></param>
+        public void getMangaContent(IWebDriver drv)
+        {
+
             if (Regex.IsMatch(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']")).Text, "Информация о манге")) //поиск только манг
             {
                 Title = drv.FindElement(By.XPath(@"//span[@class='name']")).Text; //название манги
                 BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src"); //получение задней картины
                 try
                 {
-                    NumberChapters = int.Parse(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Substring(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") + 1, drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Length - drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") - 1)); //количество глав
+                   NumberChapters = int.Parse(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Substring(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") + 1, drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Length - drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") - 1)); //количество глав
                 }
                 catch (Exception e) { }
 
@@ -93,49 +170,6 @@ namespace MangaScraper
                 {
                     Chapters.Add(ch.GetAttribute("href") + "|" + ch.Text);
                 }
-
-            }
-
-        }
-
-        public void parseImages(string chapter, IWebDriver drv)
-        {
-            drv.Navigate().GoToUrl(chapter.Substring(0, chapter.IndexOf("|")));
-            int LastPage = int.Parse(drv.FindElement(By.XPath(@"//span[@class='pages-count']")).Text) - 1;
-            for (int i = 0; i <= LastPage; i++)
-            {
-                drv.Navigate().GoToUrl(chapter.Substring(0, chapter.IndexOf("|")) + "#page=" + i);
-                drv.Navigate().Refresh();
-                Image.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
-            }
-
-        }
-
-        /// <summary>
-        /// Функция для парсинга всего списка манга на странице https://readmanga.live/list
-        /// </summary>
-        /// <param name="drv">Объект driver интерфейса IWebDriver</param>
-        /// <param name="url">Результат выполнения метода GetMainUrl класса Parser</param>
-        /// <
-        public void ParseFullListManga(IWebDriver drv, string url)
-        {
-            drv.Navigate().GoToUrl(url); //переход на сайт 
-
-            /*  |обработка при наличии кнопки далее|  */
-            if (drv.FindElements(By.XPath(@"//a[@class='nextLink']")).Count > 0)
-            {
-                ICollection<IWebElement> pages = drv.FindElements(By.XPath(@"//span[@class='step']"));
-            }
-
-            /*  |обработка при наличии кнопки назад|  */
-            if (drv.FindElements(By.XPath(@"//a[@class='prevLink']")).Count > 0)
-            {
-
-            }
-
-            /*  |обработка при наличии кнопки далее и назад|  */
-            if (drv.FindElements(By.XPath(@"//a[@class='nextLink']")).Count > 0 && drv.FindElements(By.XPath(@"//a[@class='prevLink']")).Count > 0)
-            {
 
             }
         }

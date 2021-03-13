@@ -26,21 +26,34 @@ namespace MangaScraper
         public MainWindow()
         {
             InitializeComponent();
-            InitializeComponent();
             Scraper sp = new Scraper(); //создание объекта класса
-            sp.SetMainUrl("https://readmanga.live/"); //ссылка для получения полного списка манги
-                                                      // Manga mg = new Manga(); //создание объекта mg класса Manga
-            /*
-            var options = new EdgeOptions();
-            options.UseChromium = true;
+            sp.SetMainUrl("https://readmanga.live/list"); //ссылка для получения полного списка манги
+            var options = new EdgeOptions(); //задание опций для Edge
+            options.UseChromium = true; //включение хромиума
             
-            using (IWebDriver driver = new EdgeDriver(options))
+            using (IWebDriver driver = new EdgeDriver(options)) //основная работа парсера
             {
                 
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-                mg.ParseFullListManga(driver, ps.GetMainUrl());
+                driver.Navigate().GoToUrl(sp.GetMainUrl()); //переход на сайт 
+                Manga mg = new Manga(); //создание объекта mg класса Manga
+                mg.ParseFirstListManga(driver, sp); //парсинг первой страницы с каталогом манг
+                var i = 0; //счетсчик
+                while(driver.FindElements(By.XPath(@"//a[@class='nextLink']")).Count > 0) //парсинг всех страниц
+                {
+                    driver.Navigate().GoToUrl(sp.getNextPageUrl()); //переход на следующую страницу
+                    mg.ParseAllMangaPage(driver, sp); 
+                    i++;
+                }
+                List<Manga> MangaList = new List<Manga>();
+                for (int j = 0; j < sp.GetMangaUrl().Count; j++)
+                {
+                    MangaList.Add(mg);
+                    driver.Navigate().GoToUrl(sp.GetMangaUrl()[j]);
+                    mg.getMangaContent(driver);
+                }
             }
-            */
+            
 
 
             /*
