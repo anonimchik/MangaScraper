@@ -37,22 +37,51 @@ namespace MangaScraper
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
                 driver.Navigate().GoToUrl(sp.GetMainUrl()); //переход на сайт 
                 Manga mg = new Manga(); //создание объекта mg класса Manga
-                mg.ParseFirstListManga(driver, sp); //парсинг первой страницы с каталогом манг
-                var i = 0; //счетсчик
+                sp.ParseFirstPage(driver, sp); //парсинг первой страницы с каталогом манг
+                var i = 0; //счетчик
                 //while(driver.FindElements(By.XPath(@"//a[@class='nextLink']")).Count > 0) //парсинг всех страниц //откоментировать когда будет готов парсер
                 while(i<1) //закоментировать когда будет готов парсер
                 {
                     driver.Navigate().GoToUrl(sp.getNextPageUrl()); //переход на следующую страницу
-                    mg.ParseAllMangaPage(driver, sp); 
+                    sp.ParseAllPages(driver); 
                     i++;
                 }
                 List<Manga> MangaList = new List<Manga>(); //создание списка MangaList
+                List<Manhua> ManhuaList = new List<Manhua>();
+                List<Manhwa> ManhwaList = new List<Manhwa>();
                 for (int j = 0; j < sp.GetMangaUrl().Count; j++) //парсинг манги
                 {
                     Manga mng = new Manga(); //создание объекта mng класса Manga
+                    Manhwa mnh = new Manhwa(); //создание объекта mnh класса Manhwa
+                    Manhua mna = new Manhua(); //создание объекта mna класса Manhua
                     driver.Navigate().GoToUrl(sp.GetMangaUrl()[j]); //переход по страницам
-                    mng.getMangaContent(driver, mng); //получение
-                    MangaList.Add(mng); //запись объе в список
+                    if (driver.FindElements(By.XPath(@"//p[@class='elementList']/span[@class='js-link']")).Count > 0) //раскрытие скрытых жанров
+                    {
+                        driver.FindElement(By.XPath(@"//p[@class='elementList']/span[@class='js-link']")).Click();
+                    }
+                    if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a")).Count == 0) //парсинг манги
+                    {
+                        mng.getMangaContent(driver, mng); //получение данных
+                        MangaList.Add(mng); //запись объе в список
+                    }
+                    else
+                    {
+                        if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a"))[0].Text == "Манхва") //парсинг манхвы
+                        {
+                            mnh.getManhwaContent(driver, mnh); //получение данных
+                            ManhwaList.Add(mnh); //запись объе в список
+                            
+                        }
+                        if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a"))[0].Text == "Маньхуа") //парсинг маньхуа
+                        {
+                            mna.getManhuaContent(driver, mna); //получение данных
+                            ManhuaList.Add(mna); //запись объе в список
+                            
+                            
+                        }
+                    }
+
+                    
                 }
             }
 
