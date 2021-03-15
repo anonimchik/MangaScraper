@@ -69,6 +69,7 @@ namespace MangaScraper
         /// Переводчики
         /// </summary>
         private List<String> Tranlators = new List<String>();
+        public List<List<string>> results = new List<List<string>>();
         /// <summary>
         /// 
         /// </summary>
@@ -76,7 +77,6 @@ namespace MangaScraper
         /// <param name="drv"></param>
         public void parseMangaImages(IWebDriver drv, Manga mng)
         {
-
             for (int i = 0; i < 2; i++)
             {
                 drv.Navigate().GoToUrl(Chapters[i].Substring(0, Chapters[i].IndexOf("|")));
@@ -87,7 +87,9 @@ namespace MangaScraper
                     drv.Navigate().Refresh();
                     drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src") ;
                     mng.Images.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
+                    // results[j].Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
                 }
+                results.Add(new List<string>(mng.Images));
             }
 
         }
