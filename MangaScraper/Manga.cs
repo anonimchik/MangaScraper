@@ -74,15 +74,20 @@ namespace MangaScraper
         /// </summary>
         /// <param name="chapter"></param>
         /// <param name="drv"></param>
-        public void parseMangaImages(string chapter, IWebDriver drv)
+        public void parseMangaImages(IWebDriver drv, Manga mng)
         {
-            drv.Navigate().GoToUrl(chapter.Substring(0, chapter.IndexOf("|")));
-            int LastPage = int.Parse(drv.FindElement(By.XPath(@"//span[@class='pages-count']")).Text) - 1;
-            for (int i = 0; i <= LastPage; i++)
+
+            for (int i = 0; i < 2; i++)
             {
-                drv.Navigate().GoToUrl(chapter.Substring(0, chapter.IndexOf("|")) + "#page=" + i);
-                drv.Navigate().Refresh();
-                Images.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
+                drv.Navigate().GoToUrl(Chapters[i].Substring(0, Chapters[i].IndexOf("|")));
+                int LastPage = int.Parse(drv.FindElement(By.XPath(@"//span[@class='pages-count']")).Text) - 1;
+                for (int j = 0; j <= LastPage; j++)
+                {
+                    drv.Navigate().GoToUrl(Chapters[i].Substring(0, Chapters[i].IndexOf("|")) + "#page=" + j);
+                    drv.Navigate().Refresh();
+                    drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src") ;
+                    mng.Images.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
+                }
             }
 
         }

@@ -62,6 +62,7 @@ namespace MangaScraper
                     if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a")).Count == 0) //парсинг манги
                     {
                         mng.getMangaContent(driver, mng); //получение данных
+                        mng.parseMangaImages(driver, mng);
                         MangaList.Add(mng); //запись объе в список
                     }
                     else
