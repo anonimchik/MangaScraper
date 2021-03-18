@@ -84,6 +84,7 @@ namespace MangaScraper
 
                     
                 }
+                mg.downloadImages(MangaList);
             }
 
         }

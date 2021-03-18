@@ -62,14 +62,13 @@ namespace MangaScraper
         /// </summary>
         private List<String> Genres = new List<String>();
         /// <summary>
-        /// Список изображений
-        /// </summary>
-        private List<String> Images = new List<String>();
-        /// <summary>
-        /// Переводчики
+        /// 
         /// </summary>
         private List<String> Tranlators = new List<String>();
-        public List<List<string>> results = new List<List<string>>();
+        /// <summary>
+        /// Список списков 
+        /// </summary>
+        public List<List<string>> Images = new List<List<string>>();
         /// <summary>
         /// 
         /// </summary>
@@ -77,6 +76,7 @@ namespace MangaScraper
         /// <param name="drv"></param>
         public void parseMangaImages(IWebDriver drv, Manga mng)
         {
+            List<String> subImages = new List<String>();
             for (int i = 0; i < 2; i++)
             {
                 drv.Navigate().GoToUrl(Chapters[i].Substring(0, Chapters[i].IndexOf("|")));
@@ -86,12 +86,25 @@ namespace MangaScraper
                     drv.Navigate().GoToUrl(Chapters[i].Substring(0, Chapters[i].IndexOf("|")) + "#page=" + j);
                     drv.Navigate().Refresh();
                     drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src") ;
-                    mng.Images.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
-                    // results[j].Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
+                    subImages.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
+                   
                 }
-                results.Add(new List<string>(mng.Images));
+                mng.Images.Add(new List<string>(subImages));
             }
 
+        }
+
+        public void downloadImages(List<Manga> MangaList)
+        {
+            for (int i = 0; i < MangaList.Count; i++)
+            {
+               
+                for (int j = 0; j < MangaList[i].Images.Count; j++)
+                {
+
+                }
+               
+            }
         }
 
         /// <summary>
@@ -107,6 +120,7 @@ namespace MangaScraper
             {
                 mng.ChapterNumber = ushort.Parse(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Substring(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") + 1, drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Length - drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") - 1)); //количество глав
             }
+            
             catch (Exception e) { }
 
             try
