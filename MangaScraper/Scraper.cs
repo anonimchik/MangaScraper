@@ -4,13 +4,14 @@ using System.Text;
 using OpenQA.Selenium;
 using Microsoft.Edge.SeleniumTools;
 using OpenQA.Selenium.Support.UI;
+using System.Windows.Controls;
 
 namespace MangaScraper
 {
     class Scraper
     {
         private string MainUrl;
-        private List<String> MangaUrl = new List<String>();
+        private List<String> TitleUrl = new List<String>();
         private string NextPageUrl;
         private ICollection<IWebElement> PageUrl;
         private string Query;
@@ -23,13 +24,13 @@ namespace MangaScraper
         {
             return MainUrl;
         }
-        public void SetMangaUrl(string mangaUrl)
+        public void SetTitleUrl(string mangaUrl)
         {
-            MangaUrl.Add(mangaUrl);
+            TitleUrl.Add(mangaUrl);
         }
         public List<String> GetMangaUrl()
         {
-            return MangaUrl;
+            return TitleUrl;
         }
         public void SetQuery(string query)
         {
@@ -53,7 +54,7 @@ namespace MangaScraper
         /// </summary>
         /// <param name="drv">Объект driver интерфейса IWebDriver</param>
         /// <param name="sp">Объект sp класса Scraper</param>
-        public void ParseNextUrlToPage(IWebDriver drv)
+        public void ParseNextPageUrl(IWebDriver drv)
         {
             /*  |Парсинг ссылки на следующую страницу с катологом манг|  */
             if (drv.FindElements(By.XPath(@"//a[@class='nextLink']")).Count > 0) //получение сслылки на следующую страницу
@@ -74,9 +75,9 @@ namespace MangaScraper
             ICollection<IWebElement> mangaUrl = drv.FindElements(By.XPath(@"//div[@class='desc']/h3/a")); //получение ссылок на манги
             foreach (var mangaurl in mangaUrl) //перебор коллекции ссылок
             {
-                SetMangaUrl(mangaurl.GetAttribute("href")); //запиcь ссылок в список
+                SetTitleUrl(mangaurl.GetAttribute("href")); //запиcь ссылок в список
             }
-            ParseNextUrlToPage(drv); //парсинг списка манг
+            ParseNextPageUrl(drv); //парсинг списка манг
         }
 
         /// <summary>
@@ -87,11 +88,11 @@ namespace MangaScraper
         public void ParseAllPages(IWebDriver drv)
         {
             /*  |Парсинг ссылок на конкректную мангу|  */
-            ParseNextUrlToPage(drv); //парсинг списка манг
+            ParseNextPageUrl(drv); //парсинг списка манг
             ICollection<IWebElement> mangaUrl = drv.FindElements(By.XPath(@"//div[@class='desc']/h3/a")); //получение ссылок на манги
             foreach (var mangaurl in mangaUrl) //перебор коллекции ссылок
             {
-                SetMangaUrl(mangaurl.GetAttribute("href")); //запись ссылок в список
+                SetTitleUrl(mangaurl.GetAttribute("href")); //запись ссылок в список
             }
         }
         

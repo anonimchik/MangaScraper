@@ -34,7 +34,7 @@ namespace MangaScraper
             using (IWebDriver driver = new EdgeDriver(options)) //основная работа парсера
             {
                 
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
                 driver.Navigate().GoToUrl(sp.GetMainUrl()); //переход на сайт 
                 Manga mg = new Manga(); //создание объекта mg класса Manga
                 sp.ParseFirstPage(driver, sp); //парсинг первой страницы с каталогом манг
@@ -49,7 +49,8 @@ namespace MangaScraper
                 List<Manga> MangaList = new List<Manga>(); //создание списка MangaList
                 List<Manhua> ManhuaList = new List<Manhua>();
                 List<Manhwa> ManhwaList = new List<Manhwa>();
-                for (int j = 0; j < sp.GetMangaUrl().Count; j++) //парсинг манги
+                //for (int j = 0; j < sp.GetMangaUrl().Count; j++) //парсинг манги
+                for (int j = 0; j < 2; j++)
                 {
                     Manga mng = new Manga(); //создание объекта mng класса Manga
                     Manhwa mnh = new Manhwa(); //создание объекта mnh класса Manhwa
@@ -62,8 +63,9 @@ namespace MangaScraper
                     if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a")).Count == 0) //парсинг манги
                     {
                         mng.getMangaContent(driver, mng); //получение данных
-                        mng.parseMangaImages(driver, mng);
+                        mng.parseMangaImageUrls(driver, mng);
                         MangaList.Add(mng); //запись объе в список
+                       
                     }
                     else
                     {
@@ -82,10 +84,17 @@ namespace MangaScraper
                         }
                     }
 
-                    
                 }
-                mg.downloadImages(MangaList);
+                //mg.downloadImages(MangaList);
+                for (int l = 0; l < MangaList.Count; l++)
+                {
+                    var item = new TreeViewItem();
+                    item.Header = "Манга";
+                    item.ItemsSource = MangaList[l].Title;
+                    TreeView.Items.Add(item);
+                }
             }
+            
 
         }
     }

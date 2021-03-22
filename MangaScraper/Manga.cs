@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,59 +13,59 @@ namespace MangaScraper
         /// <summary>
         /// Название манги
         /// </summary>
-        private string Title;
+        public string Title;
         /// <summary>
         /// Список других названий манги
         /// </summary>
-        private List<String> OtherTitles = new List<String>();
+        public List<String> OtherTitles = new List<String>();
         /// <summary>
         /// Фоновое изображение
         /// </summary>
-        private string BackgroundImg;
+        public string BackgroundImg;
         /// <summary>
         /// Описание манги
         /// </summary>
-        private string Description;
+        public string Description;
         /// <summary>
         /// Количество томов
         /// </summary>
-        private byte VolumeNumber;
+        public byte VolumeNumber;
         /// <summary>
         /// Количество глав
         /// </summary>
-        private ushort ChapterNumber;
+        public ushort ChapterNumber;
         /// <summary>
         /// Статус перевода
         /// </summary>
-        private string TranslateStatus;
+        public string TranslateStatus;
         /// <summary>
         /// Художник
         /// </summary>
-        private string Painter;
+        public string Painter;
         /// <summary>
         /// Сценарист
         /// </summary>
-        private string Screenweiter;
+        public string Screenweiter;
         /// <summary>
         /// Список глав
         /// </summary>
-        private List<String> Chapters = new List<String>();
+        public List<String> Chapters = new List<String>();
         /// <summary>
         /// Журнал
         /// </summary>
-        private List<String> Magazines = new List<String>();
+        public List<String> Magazines = new List<String>();
         /// <summary>
         /// Год выпуска
         /// </summary>
-        private ushort ReleaseYear;
+        public ushort ReleaseYear;
         /// <summary>
         /// Список жанров
         /// </summary>
-        private List<String> Genres = new List<String>();
+        public List<String> Genres = new List<String>();
         /// <summary>
         /// 
         /// </summary>
-        private List<String> Tranlators = new List<String>();
+        public List<String> Tranlators = new List<String>();
         /// <summary>
         /// Список списков 
         /// </summary>
@@ -74,10 +75,10 @@ namespace MangaScraper
         /// </summary>
         /// <param name="chapter"></param>
         /// <param name="drv"></param>
-        public void parseMangaImages(IWebDriver drv, Manga mng)
+        public void parseMangaImageUrls(IWebDriver drv, Manga mng)
         {
             List<String> subImages = new List<String>();
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 1; i++)
             {
                 drv.Navigate().GoToUrl(Chapters[i].Substring(0, Chapters[i].IndexOf("|")));
                 int LastPage = int.Parse(drv.FindElement(By.XPath(@"//span[@class='pages-count']")).Text) - 1;
@@ -86,8 +87,7 @@ namespace MangaScraper
                     drv.Navigate().GoToUrl(Chapters[i].Substring(0, Chapters[i].IndexOf("|")) + "#page=" + j);
                     drv.Navigate().Refresh();
                     drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src") ;
-                    subImages.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));
-                   
+                    subImages.Add(drv.FindElement(By.XPath(@"//img[@id='mangaPicture']")).GetAttribute("src"));                   
                 }
                 mng.Images.Add(new List<string>(subImages));
             }
@@ -98,10 +98,16 @@ namespace MangaScraper
         {
             for (int i = 0; i < MangaList.Count; i++)
             {
-               
                 for (int j = 0; j < MangaList[i].Images.Count; j++)
                 {
-
+                    for (int k = 0; k < MangaList[i].Images[j].Count; k++)
+                    {
+                        using (WebClient webclient = new WebClient())
+                        {
+                            webclient.DownloadFile(MangaList[i].Images[j][k].ToString(), k + ".png");
+                            
+                        }
+                    }
                 }
                
             }
