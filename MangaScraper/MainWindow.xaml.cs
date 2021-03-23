@@ -90,8 +90,13 @@ namespace MangaScraper
                 {
                     var item = new TreeViewItem();
                     item.Header = "Манга";
-                    item.ItemsSource = MangaList[l].Title;
-                    TreeView.Items.Add(item);
+                    item.Items.Add(MangaList[l].Title);
+                    foreach (var otherGenre in MangaList[l].Genres)
+                    {
+                        item.Items.Add(item.Items.Add(MangaList[l].OtherTitles));
+                    }
+                    
+                   
                 }
             }
             

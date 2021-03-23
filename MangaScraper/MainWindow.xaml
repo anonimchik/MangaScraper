@@ -21,7 +21,6 @@
             </materialDesign:Card>
             <TreeView x:Name="TreeView" Height="100">
                 <TreeView.Resources>
-                    
                 </TreeView.Resources>
             </TreeView>
         </StackPanel>
