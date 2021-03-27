@@ -9,8 +9,8 @@
     <Grid>
         <TreeView x:Name="TreeView" Height="100">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type self:Manga}" ItemsSource="{Binding Chapters}">
-                    <Label Content="{Binding Chapters}"/>
+                <HierarchicalDataTemplate ItemsSource="{Binding Images}">
+                    <Label Content="{Binding}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
