@@ -5,27 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:self="clr-namespace:MangaScraper"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"        
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}">
+        Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <StackPanel>
-            <materialDesign:Card Padding="32" Foreground="{DynamicResource SecondaryHueMidBrush}">
-                <TextBlock Style="{DynamicResource MaterialDesignHeadline6TextBlock}"><Run Text="My First Material Design App"/></TextBlock>
-            </materialDesign:Card>
-            <TreeView x:Name="TreeView" Height="100">
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type self:Manga}" ItemsSource="{Binding Chapters}">
-                        <Label Foreground="{DynamicResource SecondaryHueMidBrush}" Content="{Binding Chapters}"/>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </StackPanel>
+        <TreeView x:Name="TreeView" Height="100">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type self:Manga}" ItemsSource="{Binding Chapters}">
+                    <Label Content="{Binding Chapters}"/>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
     </Grid>
 </Window>
+
