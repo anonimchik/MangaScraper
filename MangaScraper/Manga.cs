@@ -121,6 +121,8 @@ namespace MangaScraper
         {
             /* |переработать считывание манг и манхв и маньхуа| */
             mng.Title = drv.FindElement(By.XPath(@"//span[@class='name']")).Text; //название манги
+            mng.OtherTitles.Add(drv.FindElement(By.XPath(@"//span[@class='eng-name']")).Text); //Английское название 
+            mng.OtherTitles.Add(drv.FindElement(By.XPath(@"//span[@class='original-name']")).Text); //Оригинальное название
             mng.BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src"); //получение задней картины
             try
             {

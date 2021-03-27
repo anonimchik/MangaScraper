@@ -34,7 +34,7 @@ namespace MangaScraper
             using (IWebDriver driver = new EdgeDriver(options)) //основная работа парсера
             {
                 
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
                 driver.Navigate().GoToUrl(sp.GetMainUrl()); //переход на сайт 
                 Manga mg = new Manga(); //создание объекта mg класса Manga
                 sp.ParseFirstPage(driver, sp); //парсинг первой страницы с каталогом манг
@@ -89,14 +89,21 @@ namespace MangaScraper
                 for (int l = 0; l < MangaList.Count; l++)
                 {
                     var item = new TreeViewItem();
+
+                    /*
                     item.Header = "Манга";
                     item.Items.Add(MangaList[l].Title);
-                    foreach (var otherGenre in MangaList[l].Genres)
-                    {
-                        item.Items.Add(item.Items.Add(MangaList[l].OtherTitles));
-                    }
                     
-                   
+                    foreach (var otherTitles in MangaList[l].OtherTitles)
+                    {
+                        item.Items.Add(otherTitles);
+                    }
+                    item.Items.Add(item.Header = "1");
+                    
+                    TreeView.Items.Add(item);
+                    */
+                    TreeView.ItemsSource = MangaList[l].Chapters;
+
                 }
             }
             

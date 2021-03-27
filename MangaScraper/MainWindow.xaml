@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MangaScraper"
+        xmlns:self="clr-namespace:MangaScraper"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -20,8 +20,11 @@
                 <TextBlock Style="{DynamicResource MaterialDesignHeadline6TextBlock}"><Run Text="My First Material Design App"/></TextBlock>
             </materialDesign:Card>
             <TreeView x:Name="TreeView" Height="100">
-                <TreeView.Resources>
-                </TreeView.Resources>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type self:Manga}" ItemsSource="{Binding Chapters}">
+                        <Label Foreground="{DynamicResource SecondaryHueMidBrush}" Content="{Binding Chapters}"/>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
             </TreeView>
         </StackPanel>
     </Grid>
