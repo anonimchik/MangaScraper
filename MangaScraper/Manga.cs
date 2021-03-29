@@ -10,6 +10,11 @@ namespace MangaScraper
 {
     class Manga:BaseContent
     {
+        /// <summary>
+        /// Парсинг изображений
+        /// </summary>
+        /// <param name="drv"></param>
+        /// <param name="mng"></param>
         public void parseMangaImageUrls(IWebDriver drv, Manga mng)
         {
             List<String> subImages = new List<String>();
@@ -44,7 +49,6 @@ namespace MangaScraper
                         using (WebClient webclient = new WebClient())
                         {
                             webclient.DownloadFile(MangaList[i].Images[j][k].ToString(), k + ".png");
-                            
                         }
                     }
                 }
@@ -58,62 +62,223 @@ namespace MangaScraper
         /// <param name="drv"></param>
         public void getMangaContent(IWebDriver drv, Manga mng)
         {
-            /* |переработать считывание манг и манхв и маньхуа| */
-            mng.Title = drv.FindElement(By.XPath(@"//span[@class='name']")).Text; //название манги
-            mng.OtherTitles.Add(drv.FindElement(By.XPath(@"//span[@class='eng-name']")).Text); //Английское название 
-            mng.OtherTitles.Add(drv.FindElement(By.XPath(@"//span[@class='original-name']")).Text); //Оригинальное название
-            mng.BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src"); //получение задней картины
+            Scraper srp = new Scraper();
+            srp.setFailCounter();
+            mng.Category = "Манга";
             try
-            {
-                mng.ChapterNumber = ushort.Parse(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Substring(drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") + 1, drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.Length - drv.FindElement(By.XPath(@"//div[@class='flex-row']/div[2]/h4/a")).Text.LastIndexOf(" ") - 1)); //количество глав
+            {  
+                /*   Получение названия манги   */
+                mng.Title = drv.FindElement(By.XPath(@"//span[@class='name']")).Text; 
             }
-            
-            catch (Exception e) { }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message+e.StackTrace);
+            }
 
             try
             {
-                mng.VolumeNumber = byte.Parse(Regex.Replace(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']/p[1]")).Text, @"Томов: ", "")); //получение кол-ва глав
+                /*   Получение английского названия   */
+                mng.OtherTitles.Add(drv.FindElement(By.XPath(@"//span[@class='eng-name']")).Text); 
             }
-            catch (Exception e) { }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
 
             try
             {
-                mng.TranslateStatus = Regex.Replace(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']/p[2]")).Text, @"Перевод: ", ""); //получение статуса перевода
+                /*   Получение оригинального названия   */
+                mng.OtherTitles.Add(drv.FindElement(By.XPath(@"//span[@class='original-name']")).Text); 
             }
-            catch (Exception e) { }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
 
             try
             {
-                mng.ReleaseYear = ushort.Parse(drv.FindElement(By.XPath(@"//span[@class='elem_year ']/a")).Text); //получение года выпуска
+                /*   получение задней картины   */
+                mng.BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src"); 
             }
-            catch (Exception e) { }
-
-            ICollection<IWebElement> genres = drv.FindElements(By.XPath(@"//span[@class='elem_genre ']/a")); //подготовка данных к заненсению в список Genres
-            ICollection<IWebElement> hidden_genres =  drv.FindElements(By.XPath(@"//p[@class='elementList']/span[@class='elem_genre hide']")); //подготовка скрытых данных к занесению в список Genres
-            foreach (var gnrs in genres) //запись данных в список Genres
+            catch (Exception e) 
             {
-                mng.Genres.Add(gnrs.Text);
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
             }
-            foreach(var hdn_genres in hidden_genres) //запись данных в список Genres
-            {
-                mng.Genres.Add(Regex.Replace(hdn_genres.Text, ", ", ""));
-            }
-            try
-            {
-                mng.Painter = drv.FindElement(By.XPath(@"//span[@class='elem_author ']/a")).Text; //получение автора
-            }
-            catch (Exception e) { }
 
             try
             {
-                mng.Description = drv.FindElement(By.XPath(@"//div[@class='manga-description']")).Text; //получение описания
+                /*   Получение кол-ва томов   */
+                var str = Regex.Replace(drv.FindElement(By.XPath(@"//tbody/tr[1]/td[1]/a")).Text, @"[^\d|^-]", "");
+                mng.VolumeNumber = byte.Parse(str.Substring(0, str.IndexOf("-")));
             }
-            catch (Exception e) { }
-
-            ICollection<IWebElement> chapter = drv.FindElements(By.XPath(@"//a[@class='cp-l']")); //получение ссылок на главы
-            foreach (var ch in chapter)
+            catch (Exception e) 
             {
-                mng.Chapters.Add(ch.GetAttribute("href") + "|" + ch.Text);
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   получение статуса перевода   */
+                mng.TranslateStatus = Regex.Replace(drv.FindElement(By.XPath(@"//div[@class='subject-meta col-sm-7']/p[2]")).Text, @"Перевод: ", ""); 
+            }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   получение года выпуска   */
+                mng.ReleaseYear = ushort.Parse(drv.FindElement(By.XPath(@"//span[@class='elem_year ']/a")).Text); 
+            }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   Получение списка жанров   */
+                ICollection<IWebElement> genres = drv.FindElements(By.XPath(@"//span[@class='elem_genre ']/a")); //подготовка данных к заненсению в список Genres
+                ICollection<IWebElement> hidden_genres = drv.FindElements(By.XPath(@"//p[@class='elementList']/span[@class='elem_genre hide']")); //подготовка скрытых данных к занесению в список Genres
+                foreach (var gnrs in genres) //запись данных в список Genres
+                {
+                    mng.Genres.Add(gnrs.Text);
+                }
+                foreach (var hdn_genres in hidden_genres) //запись данных в список Genres
+                {
+                    mng.Genres.Add(Regex.Replace(hdn_genres.Text, ", ", ""));
+                }
+            }
+            catch(Exception e)
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   Получение художника   */
+                mng.Painter = drv.FindElement(By.XPath(@"//span[@class='elem_illustrator ']/a")).Text; 
+            }
+            catch (Exception e)
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   Получение художника   */
+                mng.Author = drv.FindElement(By.XPath(@"//span[@class='elem_author ']/a")).Text;
+            }
+            catch (Exception e)
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   Получение сценариста   */
+                mng.Screenwriter = drv.FindElement(By.XPath(@"//span[@class='elem_screenwriter ']/a")).Text;
+            }
+            catch(Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   Получение описания   */
+                mng.Description = drv.FindElement(By.XPath(@"//div[@class='manga-description']")).Text; 
+            }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   Получение ссылок на главы   */
+                ICollection<IWebElement> chapter = drv.FindElements(By.XPath(@"//a[@class='cp-l']")); 
+                foreach (var ch in chapter)
+                {
+                    mng.Chapters.Add(ch.GetAttribute("href") + "|" + ch.Text);
+                }
+            }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            {
+                /*   Получение количества глав   */
+                mng.ChapterNumber = Convert.ToUInt16(mng.Chapters.Count); 
+            }
+
+            catch (Exception e)
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+
+            try
+            {
+                /*   Получение списка журналов   */
+                ICollection<IWebElement> magazines = drv.FindElements(By.XPath(@"//span[@class='elem_magazine ']/a"));
+                foreach (var _magazine in magazines)
+                {
+                    mng.Magazines.Add(_magazine.Text);
+                }
+            }
+            catch (Exception e)
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            { 
+                /*   Получение списка переводчиков   */
+                ICollection<IWebElement> translators = drv.FindElements(By.XPath(@"//span[@class='elem_translator ']/a"));
+                foreach (var _translator in translators)
+                {
+                    mng.Tranlators.Add(_translator.Text);
+                }
+            }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
+            }
+
+            try
+            { 
+                /*   Получение списка издательств   */
+                ICollection<IWebElement> publishings = drv.FindElements(By.XPath(@"//span[@class='elem_publisher ']"));
+                foreach (var _publishing in publishings)
+                {
+                    mng.Publishings.Add(Regex.Replace(_publishing.Text, ", | ", ""));
+                    
+                }
+            }
+            catch (Exception e) 
+            {
+                srp.setFailCounter(+1);
+                srp.setErrorMessage(e.Message + e.StackTrace);
             }
 
         }

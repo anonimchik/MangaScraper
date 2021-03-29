@@ -5,15 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:self="clr-namespace:MangaScraper"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <TreeView x:Name="TreeView" Height="100">
+        Title="MainWindow" Height="725" Width="1080">
+    <Grid Margin="0,0,0,-6" Width="1080" Height="720">
+        <TreeView x:Name="TreeView" Margin="10,10,771,215">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Images}">
+                <HierarchicalDataTemplate>
                     <Label Content="{Binding}"/>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
+        <Label x:Name="Timer" Content="Время, затраченное на парсинг манги: " HorizontalAlignment="Left" Margin="40,529,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="Fail" Content="Ошибки : " HorizontalAlignment="Left" Margin="40,591,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="FailCounter" Content="Кол-во ошибок : " HorizontalAlignment="Left" Margin="40,560,0,0" VerticalAlignment="Top"/>
+
     </Grid>
 </Window>
 

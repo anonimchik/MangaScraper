@@ -16,6 +16,8 @@ namespace MangaScraper
         private ICollection<IWebElement> PageUrl;
         private string Query;
         private List<String> Pages = new List<String>();
+        private ushort FailCounter;
+        private string ErrorMessage;
         public void SetMainUrl(string mainUrl)
         {
             MainUrl = mainUrl;
@@ -47,6 +49,22 @@ namespace MangaScraper
         public void setNextPageUrl(string nextPageUrl)
         {
             NextPageUrl = nextPageUrl;
+        }
+        public void setFailCounter(ushort _counter = 0)
+        {
+            FailCounter = _counter;
+        }
+        public ushort getFailCounter()
+        {
+            return FailCounter;
+        }
+        public void setErrorMessage(string _errorMessage)
+        {
+            ErrorMessage = _errorMessage;
+        }
+        public string getErrorMessage()
+        {
+            return ErrorMessage;
         }
 
         /// <summary>

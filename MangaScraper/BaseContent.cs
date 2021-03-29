@@ -7,6 +7,10 @@ namespace MangaScraper
     class BaseContent
     {
         /// <summary>
+        /// Категория тайтла
+        /// </summary>
+        public string Category;
+        /// <summary>
         /// Название манги
         /// </summary>
         public string Title;
@@ -41,7 +45,11 @@ namespace MangaScraper
         /// <summary>
         /// Сценарист
         /// </summary>
-        public string Screenweiter;
+        public string Screenwriter;
+        /// <summary>
+        /// Автор
+        /// </summary>
+        public string Author;
         /// <summary>
         /// Список глав
         /// </summary>
@@ -50,6 +58,10 @@ namespace MangaScraper
         /// Журнал
         /// </summary>
         public List<String> Magazines = new List<String>();
+        /// <summary>
+        /// Издатества
+        /// </summary>
+        public List<String> Publishings = new List<String>();
         /// <summary>
         /// Год выпуска
         /// </summary>
