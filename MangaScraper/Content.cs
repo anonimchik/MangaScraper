@@ -8,14 +8,14 @@ using OpenQA.Selenium.Support.UI;
 
 namespace MangaScraper
 {
-    class Manga:BaseContent
+    class Content:BaseModel
     {
         /// <summary>
         /// Парсинг изображений
         /// </summary>
         /// <param name="drv"></param>
         /// <param name="mng"></param>
-        public void parseMangaImageUrls(IWebDriver drv, Manga mng)
+        public void parseMangaImageUrls(IWebDriver drv, Content mng)
         {
             List<String> subImages = new List<String>();
             for (int i = 0; i < 1; i++)
@@ -38,7 +38,7 @@ namespace MangaScraper
         /// Скачивание картинок
         /// </summary>
         /// <param name="MangaList"></param>
-        public void downloadImages(List<Manga> MangaList)
+        public void downloadImages(List<Content> MangaList)
         {
             for (int i = 0; i < MangaList.Count; i++)
             {
@@ -60,7 +60,7 @@ namespace MangaScraper
         /// Парсинг информации о манге
         /// </summary>
         /// <param name="drv"></param>
-        public void getMangaContent(IWebDriver drv, Manga mng)
+        public void getMangaContent(IWebDriver drv, Content mng)
         {
             Scraper srp = new Scraper();
             srp.setFailCounter();
@@ -256,7 +256,7 @@ namespace MangaScraper
                 ICollection<IWebElement> translators = drv.FindElements(By.XPath(@"//span[@class='elem_translator ']/a"));
                 foreach (var _translator in translators)
                 {
-                    mng.Tranlators.Add(_translator.Text);
+                    mng.Translators.Add(_translator.Text);
                 }
             }
             catch (Exception e) 

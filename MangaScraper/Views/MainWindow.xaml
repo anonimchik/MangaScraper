@@ -1,0 +1,24 @@
+﻿<Window x:Class="MangaScraper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:self="clr-namespace:MangaScraper"
+        xmlns:bm="clr-namespace:MangaScraper.ViewModals"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="725" Width="1080">
+    <Window.DataContext>
+        <bm:BaseViewModel></bm:BaseViewModel>
+    </Window.DataContext>
+    <Grid>
+        <TreeView ItemsSource="{Binding Titles}">
+            <TreeView.ItemTemplate>
+                <DataTemplate>
+                    <ListBox ItemsSource="{Binding OtherTitles}"/>
+
+                </DataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </Grid>
+</Window>
+

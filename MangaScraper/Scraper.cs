@@ -5,7 +5,10 @@ using OpenQA.Selenium;
 using Microsoft.Edge.SeleniumTools;
 using OpenQA.Selenium.Support.UI;
 using System.Windows.Controls;
-
+using System.Diagnostics;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Collections.ObjectModel;
 namespace MangaScraper
 {
     class Scraper
@@ -111,6 +114,110 @@ namespace MangaScraper
             foreach (var mangaurl in mangaUrl) //перебор коллекции ссылок
             {
                 SetTitleUrl(mangaurl.GetAttribute("href")); //запись ссылок в список
+            }
+        }
+
+
+        public void Action(ObservableCollection<BaseModel> bm)
+        {
+            Stopwatch stopwatch = new Stopwatch(); //создание объекта класса Stopwatch
+            stopwatch.Start(); //таймер
+            Scraper sp = new Scraper(); //создание объекта класса
+            sp.SetMainUrl("https://readmanga.live/list"); //ссылка для получения полного списка манги
+            var options = new EdgeOptions(); //задание опций для Edge
+            options.UseChromium = true; //включение хромиума
+
+            using (IWebDriver driver = new EdgeDriver(options)) //основная работа парсера
+            {
+
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+                driver.Navigate().GoToUrl(sp.GetMainUrl()); //переход на сайт 
+                Content mg = new Content(); //создание объекта mg класса Manga
+                sp.ParseFirstPage(driver, sp); //парсинг первой страницы с каталогом манг
+
+                #region rotating to every page and get page url
+
+                var l = 0; //счетчик
+                           //while(driver.FindElements(By.XPath(@"//a[@class='nextLink']")).Count > 0) //парсинг всех страниц //откоментировать когда будет готов парсер
+                while (l < 1) //закоментировать когда будет готов парсер
+                {
+                    driver.Navigate().GoToUrl(sp.getNextPageUrl()); //переход на следующую страницу
+                    sp.ParseAllPages(driver);
+                    l++;
+                }
+
+                #endregion
+
+
+                #region navigate to current content page and parse data from it
+
+                /*   Парсинг конкректной страницы   */
+                //for (int j = 0; j < sp.GetMangaUrl().Count; j++) //парсинг манги
+                for (int j = 0; j < 2; j++)
+                {
+                    Content mng = new Content(); //создание объекта mng класса Manga
+                    driver.Navigate().GoToUrl(sp.GetMangaUrl()[j]); //переход по страницам
+
+                    /*   Раскрытие скрытых жанров   */
+                    if (driver.FindElements(By.XPath(@"//p[@class='elementList']/span[@class='js-link']")).Count > 0)
+                    {
+                        driver.FindElement(By.XPath(@"//p[@class='elementList']/span[@class='js-link']")).Click(); //имитация клика
+                    }
+
+                    /*   Парсинг манги   */
+                    if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a")).Count == 0)
+                    {
+                        #region parse manga
+
+                        mng.getMangaContent(driver, mng); //получение данных
+                                                          // mng.parseMangaImageUrls(driver, mng);
+                        bm.Add(mng); //запись объе в список
+
+                        #endregion
+                    }
+                    else
+                    {
+                        #region parse manhwa
+
+                        /*   Парсинг манхвы   */
+                        if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a"))[0].Text == "Манхва")
+                        {
+
+                        }
+
+                        #endregion
+
+                        #region parse manhua
+                        /*   Парсинг маньхуа   */
+                        if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a"))[0].Text == "Маньхуа")
+                        {
+
+                        }
+                        #endregion
+
+                    }
+
+                }
+
+                #endregion
+
+                #region tree creating
+
+                /* Формирование дерерва объектов   */
+
+                
+                
+                #endregion
+                    stopwatch.Stop(); //отключение таймера
+                var time = stopwatch.Elapsed;
+                /*   Формирование времени   */
+               /* 
+                Timer.Text += String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                            time.Hours, time.Minutes, time.Seconds,
+                                            time.Milliseconds / 10);
+                Fail.Text += sp.getErrorMessage();
+                FailCounter.Text += sp.getFailCounter().ToString();
+               */
             }
         }
         
