@@ -43,11 +43,11 @@ namespace MangaScraper
         /// <summary>
         /// Художник
         /// </summary>
-        private string _painter;
+        private List<String> _painters;
         /// <summary>
         /// Сценарист
         /// </summary>
-        private string _screenwriter;
+        private List<String> _screenwriters;
         /// <summary>
         /// Автор
         /// </summary>
@@ -73,7 +73,7 @@ namespace MangaScraper
         /// </summary>
         private List<String> _genres = new List<String>();
         /// <summary>
-        /// 
+        /// Переводчики
         /// </summary>
         private List<String> _tranlators = new List<String>();
         /// <summary>
@@ -155,28 +155,28 @@ namespace MangaScraper
         {
             get { return _TranslateStatus; }
             set
-            {
+            {   
                 _TranslateStatus = value;
                 OnPropertyChanged("TranslateStatus");
             }
         }
 
-        public string Painter
+        public List<String> Painters
         {
-            get { return _painter; }
+            get { return _painters; }
             set
             {
-                _painter = value;
+                _painters = value;
                 OnPropertyChanged("Painter");
             }
         }
 
-        public string Screenwriter
+        public List<String> Screenwriters
         {
-            get { return _screenwriter; }
+            get { return _screenwriters; }
             set
             {
-                _screenwriter = value;
+                _screenwriters = value;
 
             }
         }

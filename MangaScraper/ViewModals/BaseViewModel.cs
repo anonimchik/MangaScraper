@@ -10,13 +10,22 @@ namespace MangaScraper.ViewModals
 {
     class BaseViewModel: INotifyPropertyChanged
     {
-        public ObservableCollection<BaseModel> Titles { get; set; }
+        private ObservableCollection<BaseModel> _titles;
+        public ObservableCollection<BaseModel> Titles
+        {
+            get { return _titles; }
+            set
+            {
+                _titles = value;
+                OnPropertyChanged();
+            }
+        }
 
         public BaseViewModel()
         {
             Scraper sp = new Scraper();
             Titles = new ObservableCollection<BaseModel>();
-            sp.Action(Titles);
+            sp.parseInfo(Titles);
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")

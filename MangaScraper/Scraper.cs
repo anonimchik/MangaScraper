@@ -117,8 +117,11 @@ namespace MangaScraper
             }
         }
 
-
-        public void Action(ObservableCollection<BaseModel> bm)
+        /// <summary>
+        /// Парсинг информации
+        /// </summary>
+        /// <param name="bm"></param>
+        public void parseInfo(ObservableCollection<BaseModel> bm)
         {
             Stopwatch stopwatch = new Stopwatch(); //создание объекта класса Stopwatch
             stopwatch.Start(); //таймер
@@ -220,6 +223,108 @@ namespace MangaScraper
                */
             }
         }
-        
+
+        #region create treeview
+        /// <summary>
+        /// Создание элемента treeview
+        /// </summary>
+        /// <param name="treeView">объект treeView класса TreeView</param>
+        /// <param name="bm">Коллекция тайтлов</param>
+        public void createTreeview(TreeView treeView, ObservableCollection<BaseModel> bm)
+        {
+            for (int i = 0; i < bm.Count; i++)
+            {
+                TreeViewItem mainTree = new TreeViewItem();
+
+                if (bm[i].Category == "Манга")
+                {
+                    mainTree.Header = "Манга";
+                }
+                if (bm[i].Category == "Маньхуа")
+                {
+                    mainTree.Header = "Маньхуа";
+                }
+                if (bm[i].Category == "Манхва")
+                {
+                    mainTree.Header = "Манхва";
+                }
+                /*   Название   */
+                TreeViewItem title = new TreeViewItem();
+                title.Header = "Название";
+                title.Items.Add(bm[i].Title);
+                mainTree.Items.Add(title);
+
+                /*   Другие названия   */
+                TreeViewItem otherTitles = new TreeViewItem();
+                otherTitles.Header = "Другие названия";
+                otherTitles.Items.Add(bm[i].OtherTitles);
+                mainTree.Items.Add(otherTitles);
+
+                /*   Категория   */
+                TreeViewItem category = new TreeViewItem();
+                category.Header = "Категория";
+                category.Items.Add(bm[i].Category);
+                mainTree.Items.Add(category);
+
+                /*   Описание   */
+                TreeViewItem description = new TreeViewItem();
+                description.Header = "Описание";
+                description.Items.Add(bm[i].Description);
+                mainTree.Items.Add(description);
+
+                /*   Кол-во томов   */
+                TreeViewItem volumeNumber = new TreeViewItem();
+                volumeNumber.Header = "Кол=во томов";
+                volumeNumber.Items.Add(bm[i].VolumeNumber);
+                mainTree.Items.Add(volumeNumber);
+
+                /*   Кол-во глав   */
+                TreeViewItem chapterNumber = new TreeViewItem();
+                chapterNumber.Header = "Кол-во глав";
+                chapterNumber.Items.Add(bm[i].ChapterNumber);
+                mainTree.Items.Add(chapterNumber);
+
+                /*   Статус перевода   */
+                TreeViewItem translateStatus = new TreeViewItem();
+                translateStatus.Header = "Статус перевода";
+                translateStatus.Items.Add(bm[i].TranslateStatus);
+                mainTree.Items.Add(translateStatus);
+
+                /*   Художники   */
+                TreeViewItem painters = new TreeViewItem();
+                painters.Header = "Художник(-и)";
+                painters.Items.Add(bm[i].Painters);
+                mainTree.Items.Add(painters);
+
+                /*   Сценаристы   */
+                TreeViewItem screenwriters = new TreeViewItem();
+                screenwriters.Header = "Сценаристы";
+                screenwriters.Items.Add(bm[i].Screenwriters);
+                mainTree.Items.Add(screenwriters);
+
+                /*   Автор   */
+                TreeViewItem author = new TreeViewItem();
+                author.Header = "Автор";
+                author.Items.Add(bm[i].Author);
+                mainTree.Items.Add(author);
+
+                /*   Список глав   */
+                TreeViewItem chapters = new TreeViewItem();
+                chapters.Header = "Главы";
+                chapters.Items.Add(bm[i].Chapters);
+                mainTree.Items.Add(chapters);
+
+                /*   Журналы   */
+                TreeViewItem magazines = new TreeViewItem();
+                magazines.Header = "Журналы";
+                magazines.Items.Add(magazines);
+                mainTree.Items.Add(magazines);
+
+                /*   https://www.youtube.com/watch?v=Gs8AJmNBaks */
+            }
+
+        }
+        #endregion
+
     }
 }

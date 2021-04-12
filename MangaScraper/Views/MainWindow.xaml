@@ -11,14 +11,7 @@
         <bm:BaseViewModel></bm:BaseViewModel>
     </Window.DataContext>
     <Grid>
-        <TreeView ItemsSource="{Binding Titles}">
-            <TreeView.ItemTemplate>
-                <DataTemplate>
-                    <ListBox ItemsSource="{Binding OtherTitles}"/>
-
-                </DataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+        <TreeView x:Name="TreeView"></TreeView>
     </Grid>
 </Window>
 

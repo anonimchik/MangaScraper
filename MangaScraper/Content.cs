@@ -10,6 +10,7 @@ namespace MangaScraper
 {
     class Content:BaseModel
     {
+        #region getting image urls
         /// <summary>
         /// Парсинг изображений
         /// </summary>
@@ -33,7 +34,9 @@ namespace MangaScraper
             }
 
         }
+        #endregion
 
+        #region download images from chapters
         /// <summary>
         /// Скачивание картинок
         /// </summary>
@@ -55,11 +58,14 @@ namespace MangaScraper
                
             }
         }
+        #endregion
 
+        #region getting manga info
         /// <summary>
         /// Парсинг информации о манге
         /// </summary>
         /// <param name="drv"></param>
+
         public void getMangaContent(IWebDriver drv, Content mng)
         {
             Scraper srp = new Scraper();
@@ -166,7 +172,12 @@ namespace MangaScraper
             try
             {
                 /*   Получение художника   */
-                mng.Painter = drv.FindElement(By.XPath(@"//span[@class='elem_illustrator ']/a")).Text; 
+                ICollection<IWebElement> painters = drv.FindElements(By.XPath(@"//span[@class='elem_illustrator ']/a"));
+                foreach (var _painter in painters)
+                {
+                    mng.Painters.Add(_painter.Text);
+                }
+                
             }
             catch (Exception e)
             {
@@ -283,5 +294,6 @@ namespace MangaScraper
 
         }
 
+        #endregion
     }
 }
