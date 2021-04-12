@@ -318,13 +318,24 @@ namespace MangaScraper
                 TreeViewItem magazines = new TreeViewItem();
                 magazines.Header = "Журналы";
                 magazines.Items.Add(magazines);
-                mainTree.Items.Add(magazines);
+               
 
+                StackPanel stack = new StackPanel();
+                stack.Children.Add(new Image() { Source = new BitmapImage(new Uri(@"C:\Users\edik2\Source\Repos\anonimchik\MangaScraper\MangaScraper\Resources\add.png")) });
+                magazines.Header=stack;
+                mainTree.Items.Add(magazines);
                 /*   https://www.youtube.com/watch?v=Gs8AJmNBaks */
             }
 
         }
         #endregion
 
+        #region
+
+        public void writeDataToFile(ObservableCollection<BaseModel> bm)
+        {
+
+        }
+        #endregion
     }
 }

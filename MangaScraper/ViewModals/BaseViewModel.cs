@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Collections.ObjectModel;
 
-
 namespace MangaScraper.ViewModals
 {
     class BaseViewModel: INotifyPropertyChanged
@@ -26,6 +25,9 @@ namespace MangaScraper.ViewModals
             Scraper sp = new Scraper();
             Titles = new ObservableCollection<BaseModel>();
             sp.parseInfo(Titles);
+
+            sp.createTreeview();
+             
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
