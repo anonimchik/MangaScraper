@@ -43,11 +43,11 @@ namespace MangaScraper
         /// <summary>
         /// Художник
         /// </summary>
-        private List<String> _painters;
+        private List<String> _painters=new List<String>();
         /// <summary>
         /// Сценарист
         /// </summary>
-        private List<String> _screenwriters;
+        private List<String> _screenwriters=new List<String>();
         /// <summary>
         /// Автор
         /// </summary>

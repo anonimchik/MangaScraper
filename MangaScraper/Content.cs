@@ -199,7 +199,12 @@ namespace MangaScraper
             try
             {
                 /*   Получение сценариста   */
-                mng.Screenwriter = drv.FindElement(By.XPath(@"//span[@class='elem_screenwriter ']/a")).Text;
+                ICollection<IWebElement> screnwriters = drv.FindElements(By.XPath(@"//span[@class='elem_screenwriter ']/a"));
+                foreach (var _screenwriter in screnwriters)
+                {
+                    mng.Screenwriters.Add(_screenwriter.Text);
+                }
+               
             }
             catch(Exception e) 
             {
@@ -221,7 +226,7 @@ namespace MangaScraper
             try
             {
                 /*   Получение ссылок на главы   */
-                ICollection<IWebElement> chapter = drv.FindElements(By.XPath(@"//a[@class='cp-l']")); 
+                ICollection<IWebElement> chapter = drv.FindElements(By.XPath(@"//a[@class='chapter-link cp-l']")); 
                 foreach (var ch in chapter)
                 {
                     mng.Chapters.Add(ch.GetAttribute("href") + "|" + ch.Text);

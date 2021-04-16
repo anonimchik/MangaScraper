@@ -26,6 +26,7 @@ namespace MangaScraper.ViewModals
             Scraper sp = new Scraper();
             Titles = new ObservableCollection<BaseModel>();
             sp.parseInfo(Titles);
+            sp.writeToFile(Titles);
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")

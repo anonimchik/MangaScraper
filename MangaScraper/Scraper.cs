@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Collections.ObjectModel;
+using System.IO;
+
 namespace MangaScraper
 {
     class Scraper
@@ -156,7 +158,7 @@ namespace MangaScraper
 
                 /*   Парсинг конкректной страницы   */
                 //for (int j = 0; j < sp.GetMangaUrl().Count; j++) //парсинг манги
-                for (int j = 0; j < 2; j++)
+                for (int j = 0; j < 3; j++)
                 {
                     Content mng = new Content(); //создание объекта mng класса Manga
                     driver.Navigate().GoToUrl(sp.GetMangaUrl()[j]); //переход по страницам
@@ -326,5 +328,40 @@ namespace MangaScraper
         }
         #endregion
 
+        
+        public void writeToFile(ObservableCollection<BaseModel> bm)
+        {
+            string path = @"C:\Users\Админ\Desktop";
+            using(FileStream fs=new FileStream(path+@"\dataFile.txt", FileMode.Create)) {
+                string record;
+                byte[] array;;
+                for (int i = 0; i < bm.Count; i++)
+                {
+                    record = $"Название:" + bm[i].Title + "\r\nДругие названия: " + bm[i].OtherTitles[0] + " | " + bm[i].OtherTitles[1] + "\r\nКатегория: " + bm[i].Category +
+                        "\r\nАвтор: " + bm[i].Author + "\r\nСценарист: ";
+                    for (int j = 0; j < bm[i].Screenwriters.Count; j++)
+                    {
+                        record += bm[i].Screenwriters[j]+",";
+                    }
+                    record = record.Substring(0, record.LastIndexOf(","));
+                    record += "\r\nОписание: " + bm[i].Description + "\r\nКоличество томов: " + bm[i].VolumeNumber +
+                        "\r\nКоличество глав: " + bm[i].ChapterNumber + "\r\nСтатус перевода: " + bm[i].TranslateStatus + "\r\nХудожник: ";
+                    foreach (var painter in bm[i].Painters)
+                    {
+                        record += painter + ",";
+                    }
+                    record = record.Substring(0, record.LastIndexOf(","));
+                    record +="\r\nЖанры: ";
+                    foreach (var genre in bm[i].Genres)
+                    {
+                        record += genre+",";
+                    }
+                    record = record.Substring(0, record.LastIndexOf(","));
+                    record += "\r\nГод выпуска: "+bm[i].ReleaseYear+"\r\n";
+                    array=System.Text.Encoding.Default.GetBytes(record);
+                    fs.Write(array, 0, array.Length);
+                }
+            }
+        }
     }
 }
