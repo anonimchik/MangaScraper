@@ -11,7 +11,19 @@
         <bm:BaseViewModel></bm:BaseViewModel>
     </Window.DataContext>
     <Grid>
-        <TreeView x:Name="TreeView"></TreeView>
+        <TreeView ItemsSource="{Binding Titles}">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Title}">
+                    <TextBlock Text="{Binding Path=Category}"/>
+                    <HierarchicalDataTemplate.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}"/>
+                        </DataTemplate>
+                    </HierarchicalDataTemplate.ItemTemplate>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
     </Grid>
+    
 </Window>
 

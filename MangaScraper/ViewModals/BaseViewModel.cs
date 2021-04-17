@@ -21,12 +21,14 @@ namespace MangaScraper.ViewModals
             }
         }
 
+        public ObservableCollection<BaseModel> SubTitles;
         public BaseViewModel()
         {
             Scraper sp = new Scraper();
             Titles = new ObservableCollection<BaseModel>();
-            sp.parseInfo(Titles);
-            sp.writeToFile(Titles);
+            SubTitles = new ObservableCollection<BaseModel>();
+            sp.parseInfo(Titles, SubTitles);
+            //sp.writeToFile(Titles);
         }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")

@@ -70,7 +70,7 @@ namespace MangaScraper
         {
             Scraper srp = new Scraper();
             srp.setFailCounter();
-            mng.Category = "Манга";
+            mng.Category = drv.FindElement(By.XPath(@"//h1[@class='names']")).Text.Substring(0, drv.FindElement(By.XPath(@"//h1[@class='names']")).Text.IndexOf(" "));
             try
             {  
                 /*   Получение названия манги   */

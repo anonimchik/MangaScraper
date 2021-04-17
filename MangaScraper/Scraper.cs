@@ -123,7 +123,7 @@ namespace MangaScraper
         /// Парсинг информации
         /// </summary>
         /// <param name="bm"></param>
-        public void parseInfo(ObservableCollection<BaseModel> bm)
+        public void parseInfo(ObservableCollection<BaseModel> bm, ObservableCollection<BaseModel> sb)
         {
             Stopwatch stopwatch = new Stopwatch(); //создание объекта класса Stopwatch
             stopwatch.Start(); //таймер
@@ -170,50 +170,24 @@ namespace MangaScraper
                     }
 
                     /*   Парсинг манги   */
-                    if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a")).Count == 0)
-                    {
-                        #region parse manga
 
                         mng.getMangaContent(driver, mng); //получение данных
                                                           // mng.parseMangaImageUrls(driver, mng);
-                        bm.Add(mng); //запись объе в список
-
-                        #endregion
+                        bm.Add(mng); //запись объе в список  
                     }
-                    else
-                    {
-                        #region parse manhwa
-
-                        /*   Парсинг манхвы   */
-                        if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a"))[0].Text == "Манхва")
-                        {
-
-                        }
-
-                        #endregion
-
-                        #region parse manhua
-                        /*   Парсинг маньхуа   */
-                        if (driver.FindElements(By.XPath(@"//span[@class='elem_category ']/a"))[0].Text == "Маньхуа")
-                        {
-
-                        }
-                        #endregion
-
-                    }
-
+                sb = bm;
                 }
 
-                #endregion
+            #endregion
 
-                #region tree creating
+            #region tree creating
 
-                /* Формирование дерерва объектов   */
+            /* Формирование дерерва объектов   */
 
-                
-                
-                #endregion
-                    stopwatch.Stop(); //отключение таймера
+
+
+            #endregion
+            stopwatch.Stop(); //отключение таймера
                 var time = stopwatch.Elapsed;
                 /*   Формирование времени   */
                /* 
@@ -224,7 +198,6 @@ namespace MangaScraper
                 FailCounter.Text += sp.getFailCounter().ToString();
                */
             }
-        }
 
         #region create treeview
         /// <summary>
@@ -328,7 +301,7 @@ namespace MangaScraper
         }
         #endregion
 
-        
+        #region writing data to file
         public void writeToFile(ObservableCollection<BaseModel> bm)
         {
             string path = @"C:\Users\Админ\Desktop";
@@ -337,31 +310,45 @@ namespace MangaScraper
                 byte[] array;;
                 for (int i = 0; i < bm.Count; i++)
                 {
-                    record = $"Название:" + bm[i].Title + "\r\nДругие названия: " + bm[i].OtherTitles[0] + " | " + bm[i].OtherTitles[1] + "\r\nКатегория: " + bm[i].Category +
+                    record = $"Название: " + bm[i].Title + "\r\nДругие названия: ";
+                    bool l=false;
+                    foreach (var othertitle in bm[i].OtherTitles)
+                    {
+                        record += othertitle + ",";
+                        l=true;
+                    }
+                    if (l) record = record.Substring(0, record.LastIndexOf(","));
+                    record += "\r\nКатегория: " + bm[i].Category +
                         "\r\nАвтор: " + bm[i].Author + "\r\nСценарист: ";
+                    l = false;
                     for (int j = 0; j < bm[i].Screenwriters.Count; j++)
                     {
                         record += bm[i].Screenwriters[j]+",";
+                        l = true;
                     }
-                    record = record.Substring(0, record.LastIndexOf(","));
+                    if (l) record = record.Substring(0, record.LastIndexOf(","));
                     record += "\r\nОписание: " + bm[i].Description + "\r\nКоличество томов: " + bm[i].VolumeNumber +
                         "\r\nКоличество глав: " + bm[i].ChapterNumber + "\r\nСтатус перевода: " + bm[i].TranslateStatus + "\r\nХудожник: ";
+                    l = false;
                     foreach (var painter in bm[i].Painters)
                     {
                         record += painter + ",";
                     }
-                    record = record.Substring(0, record.LastIndexOf(","));
+                    if (l) record = record.Substring(0, record.LastIndexOf(","));
                     record +="\r\nЖанры: ";
+                    l = false;
                     foreach (var genre in bm[i].Genres)
                     {
                         record += genre+",";
+                        l = true;
                     }
-                    record = record.Substring(0, record.LastIndexOf(","));
-                    record += "\r\nГод выпуска: "+bm[i].ReleaseYear+"\r\n";
+                    if (l) record = record.Substring(0, record.LastIndexOf(","));
+                    record += "\r\nГод выпуска: "+bm[i].ReleaseYear+"\r\n\r\n";
                     array=System.Text.Encoding.Default.GetBytes(record);
                     fs.Write(array, 0, array.Length);
                 }
             }
         }
+        #endregion
     }
 }
