@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:self="clr-namespace:MangaScraper"
         xmlns:bm="clr-namespace:MangaScraper.ViewModals"
+        xmlns:v="clr-namespace:MangaScraper.Models"
         mc:Ignorable="d"
         Title="MainWindow" Height="725" Width="1080">
     <Window.DataContext>
@@ -14,11 +15,11 @@
         <TreeView ItemsSource="{Binding Titles}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Title}">
-                    <TextBlock Text="{Binding Path=Category}"/>
+                    <TextBlock Text="{Binding Path=Title}"/>
                     <HierarchicalDataTemplate.ItemTemplate>
-                        <DataTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Subtitles}">
                             <TextBlock Text="{Binding}"/>
-                        </DataTemplate>
+                        </HierarchicalDataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>

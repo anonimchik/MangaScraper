@@ -123,7 +123,7 @@ namespace MangaScraper
         /// Парсинг информации
         /// </summary>
         /// <param name="bm"></param>
-        public void parseInfo(ObservableCollection<BaseModel> bm, ObservableCollection<BaseModel> sb)
+        public void parseInfo(ObservableCollection<BaseModel> bm, List<String> sb)
         {
             Stopwatch stopwatch = new Stopwatch(); //создание объекта класса Stopwatch
             stopwatch.Start(); //таймер
@@ -171,11 +171,11 @@ namespace MangaScraper
 
                     /*   Парсинг манги   */
 
-                        mng.getMangaContent(driver, mng); //получение данных
-                                                          // mng.parseMangaImageUrls(driver, mng);
-                        bm.Add(mng); //запись объе в список  
+                    mng.getMangaContent(driver, mng); //получение данных
+                                                        // mng.parseMangaImageUrls(driver, mng);
+                    bm.Add(mng); //запись объе в список  
+                    sb.AddRange(mng.Chapters);
                     }
-                sb = bm;
                 }
 
             #endregion
