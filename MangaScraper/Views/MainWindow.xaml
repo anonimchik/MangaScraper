@@ -18,6 +18,10 @@
                     <StackPanel>
                         <TextBlock Text="{Binding Path=Title}"/>
                         <TextBlock Text="{Binding Category}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Path=VolumeNumber}"/>
+                            <TextBlock Text="{Binding Path=ChapterNumber}"/>
+                        </StackPanel>
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
