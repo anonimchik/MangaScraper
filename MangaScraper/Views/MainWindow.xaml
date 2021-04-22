@@ -5,27 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:self="clr-namespace:MangaScraper"
         xmlns:bm="clr-namespace:MangaScraper.ViewModals"
-        xmlns:v="clr-namespace:MangaScraper.Models"
         mc:Ignorable="d"
         Title="MainWindow" Height="725" Width="1080">
     <Window.DataContext>
         <bm:BaseViewModel></bm:BaseViewModel>
     </Window.DataContext>
     <Grid>
-        <TreeView ItemsSource="{Binding Titles}">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Path=Title}"/>
-                        <TextBlock Text="{Binding Category}"/>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Path=VolumeNumber}"/>
-                            <TextBlock Text="{Binding Path=ChapterNumber}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="/Resources/left-arrow.png" Width="30" Height="30"  Panel.ZIndex="2"/>
+            <Image x:Name="imageButton" Source="/Resources/add.png" Width="100" Height="100" Panel.ZIndex="2"/>
+            <Image Source="/Resources/add.png" Width="100" Height="100" Panel.ZIndex="1"/>
+            <Image Source="/Resources/add.png" Width="100" Height="100" Panel.ZIndex="2"/>
+            <Image Source="/Resources/right-arrow.png" Width="30" Height="30"  Panel.ZIndex="2"/>
+        </StackPanel>
     </Grid>
     
 </Window>

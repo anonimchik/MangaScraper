@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using OpenQA.Selenium;
 using Microsoft.Edge.SeleniumTools;
 using OpenQA.Selenium.Support.UI;
 using System.Windows.Controls;
 using System.Diagnostics;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Collections.ObjectModel;
 using System.IO;
 
