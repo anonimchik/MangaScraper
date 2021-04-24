@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Collections.ObjectModel;
 using System.Windows.Media.Animation;
-using MangaScraper.
 
 namespace MangaScraper.ViewModals
 {
@@ -23,13 +22,14 @@ namespace MangaScraper.ViewModals
         }
         public BaseViewModel()
         {
-            
             /*
-             Scraper sp = new Scraper();
-             Titles = new ObservableCollection<BaseModel>();
-             SubTitles = new List<String>();
-             sp.parseInfo(Titles);
+            ReadMangaViewModel sp = new ReadMangaViewModel();
+            Titles = new ObservableCollection<BaseModel>();
+            sp.parseInfo(Titles);
             */
+            MangalibViewModel ml = new MangalibViewModel();
+            ml.mm();
+            
             //sp.writeToFile(Titles);
         }
         public event PropertyChangedEventHandler PropertyChanged;

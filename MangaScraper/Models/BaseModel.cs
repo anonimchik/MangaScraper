@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 using System.Runtime.CompilerServices;
 
 namespace MangaScraper
@@ -17,9 +16,13 @@ namespace MangaScraper
         /// </summary>
         private string _title;
         /// <summary>
-        /// Список других названий манги
+        /// Английское название
         /// </summary>
-        private List<String> _otherTitles = new List<String>();
+        private string _engTitle;
+        /// <summary>
+        /// Альтернативные названия
+        /// </summary>
+        private List<String> _otherTitles;
         /// <summary>
         /// Фоновое изображение
         /// </summary>
@@ -41,13 +44,17 @@ namespace MangaScraper
         /// </summary>
         private string _TranslateStatus;
         /// <summary>
+        /// Статус тайтла
+        /// </summary>
+        private string _titleStatus;
+        /// <summary>
         /// Художник
         /// </summary>
-        private List<String> _painters=new List<String>();
+        private List<String> _painters = new List<String>();
         /// <summary>
         /// Сценарист
         /// </summary>
-        private List<String> _screenwriters=new List<String>();
+        private List<String> _screenwriters = new List<String>();
         /// <summary>
         /// Автор
         /// </summary>
@@ -67,7 +74,7 @@ namespace MangaScraper
         /// <summary>
         /// Год выпуска
         /// </summary>
-        private ushort  _releaseYear;
+        private ushort _releaseYear;
         /// <summary>
         /// Список жанров
         /// </summary>
@@ -101,12 +108,21 @@ namespace MangaScraper
             }
         }
 
+        public string EngTitle
+        {
+            get { return _engTitle; }
+            set
+            {
+                _engTitle = value;
+                OnPropertyChanged("EngTitle");
+            }
+        }
+
         public List<String> OtherTitles
         {
             get { return _otherTitles; }
-            set
-            {
-                _otherTitles = value;
+            set 
+            { _otherTitles = value;
                 OnPropertyChanged("OtherTitles");
             }
         }
@@ -155,9 +171,19 @@ namespace MangaScraper
         {
             get { return _TranslateStatus; }
             set
-            {   
+            {
                 _TranslateStatus = value;
                 OnPropertyChanged("TranslateStatus");
+            }
+        }
+
+        public string TitleStatus
+        {
+            get { return _titleStatus; }
+            set
+            {
+                _titleStatus = value;
+                OnPropertyChanged("TitleStatus");
             }
         }
 
@@ -177,10 +203,10 @@ namespace MangaScraper
             set
             {
                 _screenwriters = value;
-
+                OnPropertyChanged("Screenwriters");
             }
         }
-        
+
         public string Author
         {
             get { return _author; }
