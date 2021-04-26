@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using OpenQA.Selenium;
 using System.Text.RegularExpressions;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
