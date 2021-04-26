@@ -273,6 +273,6 @@ namespace MangaScraper.ViewModals
             }
         }
 
-        public
+        
     }
 }
