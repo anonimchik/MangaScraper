@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Edge.SeleniumTools" Version="3.141.1" />
+    <PackageReference Include="MySql.Data" Version="8.0.24" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
     <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="90.0.818.42" />
   </ItemGroup>

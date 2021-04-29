@@ -23,7 +23,7 @@ namespace MangaScraper.ViewModals
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
                 BaseModel bm = new BaseModel();
                 /*   |Получение ссылок на страницы|   */
-                for (int i = 1; i < 2; i++)
+                for (int i = 1; i < 50; i++)
                 {
                     driver.Navigate().GoToUrl(Url+"?page="+i.ToString()); //переход на сайт 
                     if (driver.FindElements(By.XPath(@"//div[@class=' page__wrapper page__wrapper_left  paper manga-search']")).Count > 0) pages.Add(Url + "?page=" + i.ToString());
