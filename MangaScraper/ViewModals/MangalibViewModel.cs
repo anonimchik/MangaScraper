@@ -24,11 +24,11 @@ namespace MangaScraper.ViewModals
              opt.BinaryLocation = @"C:\Users\edik2\AppData\Local\Programs\Opera\launcher.exe";
              IWebDriver dr = new OperaDriver(opt);
             */
-            FirefoxProfile profile = new FirefoxProfileManager().GetProfile("axixa");
-            FirefoxOptions option = new FirefoxOptions();
-            option.Profile = profile;
+           /// FirefoxProfile profile = new FirefoxProfile(@"C:\Users\edik2\AppData\Local\Mozilla\Firefox\Profiles\gjh9gjq9.axixa");
+           // FirefoxOptions option = new FirefoxOptions();
+           // option.Profile = profile;
             
-            IWebDriver dr = new FirefoxDriver(option);
+            IWebDriver dr = new FirefoxDriver();
             for (int i=1; i <= 3; i++)
             {
                 dr.Navigate().GoToUrl(Url + "?page=" + i.ToString());
