@@ -8,7 +8,6 @@ namespace MangaScraper.ViewModals
 {
     class DatabaseModelView:DatabaseModel
     {
-        server
-        MySqlConnection conn = new MySqlConnection(Con);
+      
     }
 }

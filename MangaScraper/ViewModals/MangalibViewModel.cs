@@ -6,6 +6,8 @@ using OpenQA.Selenium.Support.UI;
 using System.Threading;
 using System.Net;
 using System.IO;
+using OpenQA.Selenium.Firefox;
+using System.Text;
 
 namespace MangaScraper.ViewModals
 {
@@ -17,6 +19,21 @@ namespace MangaScraper.ViewModals
             options.UseChromium = true; //включение хромиума
             Url = "https://mangalib.me/manga-list";
             var pages = new List<String>();
+            //var opt = new OperaOptions();
+            /* 
+             opt.BinaryLocation = @"C:\Users\edik2\AppData\Local\Programs\Opera\launcher.exe";
+             IWebDriver dr = new OperaDriver(opt);
+            */
+            FirefoxProfile profile = new FirefoxProfileManager().GetProfile("axixa");
+            FirefoxOptions option = new FirefoxOptions();
+            option.Profile = profile;
+            
+            IWebDriver dr = new FirefoxDriver(option);
+            for (int i=1; i <= 3; i++)
+            {
+                dr.Navigate().GoToUrl(Url + "?page=" + i.ToString());
+            }
+
             using (IWebDriver driver = new EdgeDriver(options)) //основная работа парсера
             {
 
