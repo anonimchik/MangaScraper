@@ -27,8 +27,8 @@ namespace MangaScraper.ViewModals
             Titles = new ObservableCollection<BaseModel>();
             sp.parseInfo(Titles);
             */
-            MangalibViewModel ml = new MangalibViewModel();
-            ml.mm();
+            MangachanViewModel mc = new MangachanViewModel();
+            mc.MangachanMain();
             
             //sp.writeToFile(Titles);
         }

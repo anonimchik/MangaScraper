@@ -24,26 +24,28 @@ namespace MangaScraper.ViewModals
              opt.BinaryLocation = @"C:\Users\edik2\AppData\Local\Programs\Opera\launcher.exe";
              IWebDriver dr = new OperaDriver(opt);
             */
-           /// FirefoxProfile profile = new FirefoxProfile(@"C:\Users\edik2\AppData\Local\Mozilla\Firefox\Profiles\gjh9gjq9.axixa");
-           // FirefoxOptions option = new FirefoxOptions();
-           // option.Profile = profile;
-            
-            IWebDriver dr = new FirefoxDriver();
+            /// FirefoxProfile profile = new FirefoxProfile(@"C:\Users\edik2\AppData\Local\Mozilla\Firefox\Profiles\gjh9gjq9.axixa");
+            // FirefoxOptions option = new FirefoxOptions();
+            // option.Profile = profile;
+            /*
+            IWebDriver dr = new EdgeDriver(options);
             for (int i=1; i <= 3; i++)
             {
-                dr.Navigate().GoToUrl(Url + "?page=" + i.ToString());
+                dr.Navigate().GoToUrl("https://www.radiorecord.ru/podcast/15761");
             }
-
+            */
             using (IWebDriver driver = new EdgeDriver(options)) //основная работа парсера
             {
-
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
                 BaseModel bm = new BaseModel();
                 /*   |Получение ссылок на страницы|   */
                 for (int i = 1; i < 50; i++)
                 {
                     driver.Navigate().GoToUrl(Url+"?page="+i.ToString()); //переход на сайт 
+                    IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                    js.ExecuteScript("const newProto = navigator.__proto__ delete newProto.webdriver navigator.__proto__ = newProto");
                     if (driver.FindElements(By.XPath(@"//div[@class=' page__wrapper page__wrapper_left  paper manga-search']")).Count > 0) pages.Add(Url + "?page=" + i.ToString());
+                    Thread.Sleep(5000);
                 }
                 var mg = new List<String>();
                 

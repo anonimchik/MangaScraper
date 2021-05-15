@@ -8,6 +8,10 @@ namespace MangaScraper
     class BaseModel : INotifyPropertyChanged
     {
         /// <summary>
+        /// Ссылка на источник
+        /// </summary>
+        private string _sourceUrl;
+        /// <summary>
         /// Категория тайтла
         /// </summary>
         private string _category;
@@ -22,7 +26,7 @@ namespace MangaScraper
         /// <summary>
         /// Альтернативные названия
         /// </summary>
-        private List<String> _otherTitles;
+        private List<String> _otherTitles=new List<String>();
         /// <summary>
         /// Фоновое изображение
         /// </summary>
@@ -60,6 +64,10 @@ namespace MangaScraper
         /// </summary>
         private string _author;
         /// <summary>
+        /// Список авторов
+        /// </summary>
+        private List<String> _authors=new List<String>();
+        /// <summary>
         /// Список глав
         /// </summary>
         private List<String> _chapters = new List<String>();
@@ -87,7 +95,23 @@ namespace MangaScraper
         /// Список списков 
         /// </summary>
         private List<List<string>> _images = new List<List<string>>();
-
+        /// <summary>
+        /// Список ссылок на страницы
+        /// </summary>
+        private List<String> _catalogPages = new List<String>();
+        /// <summary>
+        /// Список ссылок на конректный тайтл
+        /// </summary>
+        private List<String> _titlePages = new List<String>();
+        public string SourceUrl
+        {
+            get { return _sourceUrl; }
+            set 
+            {
+                _sourceUrl = value;
+                OnPropertyChanged("SourceUrl");
+            }
+        }
         public string Category
         {
             get { return _category; }
@@ -217,6 +241,16 @@ namespace MangaScraper
             }
         }
 
+        public List<String> Authors
+        {
+            get { return _authors; }
+            set
+            {
+                _authors = value;
+                OnPropertyChanged("Authors");
+            }
+        }
+
         public List<String> Chapters
         {
             get { return _chapters; }
@@ -284,6 +318,23 @@ namespace MangaScraper
             {
                 _images = value;
                 OnPropertyChanged("Images");
+            }
+        }
+
+        public List<String> CatalogPages
+        {
+            get { return _catalogPages; }
+            set
+            {
+                _catalogPages = value;
+            }
+        }
+        public List<String> TitlePages
+        {
+            get { return _titlePages; }
+            set
+            {
+                _titlePages = value;
             }
         }
 
