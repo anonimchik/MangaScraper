@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
 using System;
+using MySql.Data.MySqlClient;
 
 namespace MangaScraper.ViewModals
 {
@@ -17,10 +18,20 @@ namespace MangaScraper.ViewModals
             options.UseChromium = true;
             using(IWebDriver drv=new EdgeDriver(options))
             {
-                getPagesList(drv, bm);
+                /*getPagesList(drv, bm);
                 getTitlePageUrl(drv, bm);
                 getTitleInfo(drv, bm);
                 getChapterImages(drv, bm);
+                */
+                DatabaseModelView db = new DatabaseModelView();
+                db.Server = "http://95.54.44.39";
+                db.User = "root";
+                db.Password = "1234";
+                db.Databse = "SpaceManga";
+                string connection = "server=" + db.Server + ";user=" + db.User + "port=5000/pkg/phpmyadmin;password=" + db.Password+"; database = " + db.Databse;
+                MySqlConnection con = new MySqlConnection(connection);
+                con.Open();
+                MySqlCommand cmd = new MySqlCommand("insert into Age_limits(age_limit) values('18+')", con);
             }
         }
         /// <summary>
@@ -120,6 +131,7 @@ namespace MangaScraper.ViewModals
                 bm.Images.Add(new List<String>(subImages));
                 break;
             }
+            bm.Images.Reverse();
         }
     }
 }
