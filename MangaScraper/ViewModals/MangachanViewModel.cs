@@ -3,6 +3,7 @@ using Microsoft.Edge.SeleniumTools;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
+using System;
 
 namespace MangaScraper.ViewModals
 {
@@ -109,11 +110,14 @@ namespace MangaScraper.ViewModals
                 drv.Navigate().GoToUrl(bm.Chapters[i]);
                 IList<IWebElement> page = drv.FindElements(By.XPath("//select[@class='drop']/option"));
                 int count = int.Parse(page[page.Count-1].Text.Substring(page[page.Count-1].Text.IndexOf(". ") + 1, page[page.Count-1].Text.Length - page[page.Count-1].Text.IndexOf(". ") - 1)); //кол-во страниц конкретной главы
-                for(int j=0; j<count; j++)
+                List<String> subImages = new List<String>();
+                for(int j=1; j<=count; j++)
                 {
                     drv.Navigate().GoToUrl(bm.Chapters[i] + "?page=" + j);
-                    drv.FindElement(By.XPath("//a[contains(@href, '#page=')]/img"));
+                    subImages.Add(drv.FindElement(By.XPath("//a[contains(@href, '#page=')]/img")).GetAttribute("src"));
+                    break;
                 }
+                bm.Images.Add(new List<String>(subImages));
                 break;
             }
         }
