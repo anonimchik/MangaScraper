@@ -24,11 +24,11 @@ namespace MangaScraper.ViewModals
                 getChapterImages(drv, bm);
                 */
                 DatabaseModelView db = new DatabaseModelView();
-                db.Server = "http://95.54.44.39";
+                db.Server = "95.54.44.39";
                 db.User = "root";
                 db.Password = "1234";
                 db.Databse = "SpaceManga";
-                string connection = "server=" + db.Server + ";user=" + db.User + "port=5000/pkg/phpmyadmin;password=" + db.Password+"; database = " + db.Databse;
+                string connection = "SERVER=" + db.Server + ";" + "DATABASE=" + db.Databse + ";" + "UID=" + db.User + ";" + "PASSWORD=" + db.Password + ";";
                 MySqlConnection con = new MySqlConnection(connection);
                 con.Open();
                 MySqlCommand cmd = new MySqlCommand("insert into Age_limits(age_limit) values('18+')", con);
