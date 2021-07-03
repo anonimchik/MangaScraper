@@ -4,7 +4,8 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
 using System;
-using MySql.Data.MySqlClient;
+using System.Net;
+using System.Text.Json;
 
 namespace MangaScraper.ViewModals
 {
@@ -12,27 +13,32 @@ namespace MangaScraper.ViewModals
     {
         public void MangachanMain()
         {
-            BaseModel bm = new BaseModel();
-            bm.SourceUrl = "https://manga-chan.me/";
-            var options = new EdgeOptions(); //задание опций для Edge
-            options.UseChromium = true;
-            using(IWebDriver drv=new EdgeDriver(options))
+            string URI = "http://95.54.44.39:60000/MyWeb/test/api.php";
+
+            using (WebClient wc = new WebClient())
             {
-                /*getPagesList(drv, bm);
-                getTitlePageUrl(drv, bm);
-                getTitleInfo(drv, bm);
-                getChapterImages(drv, bm);
-                */
-                DatabaseModelView db = new DatabaseModelView();
-                db.Server = "95.54.44.39";
-                db.User = "root";
-                db.Password = "1234";
-                db.Databse = "SpaceManga";
-                string connection = "SERVER=" + db.Server + ";" + "DATABASE=" + db.Databse + ";" + "UID=" + db.User + ";" + "PASSWORD=" + db.Password + ";";
-                MySqlConnection con = new MySqlConnection(connection);
-                con.Open();
-                MySqlCommand cmd = new MySqlCommand("insert into Age_limits(age_limit) values('18+')", con);
+                BaseModel bm = new BaseModel();
+                bm.Author = "kek";
+                bm.ChapterNumber = 77;
+                string json = JsonSerializer.Serialize<BaseModel>(bm);
+                string myParameters = "jsonObj=" + json;
+                wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+                string HtmlResult = wc.UploadString(URI, myParameters);
             }
+
+            //BaseModel bm = new BaseModel();
+            //bm.SourceUrl = "https://manga-chan.me/";
+            //var options = new EdgeOptions(); //задание опций для Edge
+            //options.UseChromium = true;
+            //using(IWebDriver drv=new EdgeDriver(options))
+            //{
+            /*getPagesList(drv, bm);
+            getTitlePageUrl(drv, bm);
+            getTitleInfo(drv, bm);
+            getChapterImages(drv, bm);
+            */
+
+            //}
         }
         /// <summary>
         /// Получение списка страниц
