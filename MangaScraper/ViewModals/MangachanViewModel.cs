@@ -4,10 +4,10 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
 using System;
-using MySql.Data.MySqlClient;
 using System.Net;
 using System.Collections.Specialized;
 using System.Text.Json;
+using System.Text;
 
 namespace MangaScraper.ViewModals
 {
@@ -15,6 +15,8 @@ namespace MangaScraper.ViewModals
     {
         public void MangachanMain()
         {
+            Encoding utf8 = Encoding.UTF8;
+            string response="";
             string url = "http://u88497.test-handyhost.ru/space_manga/api/scraper_api.php";
             BaseModel bm = new BaseModel();
             bm.Author = "kek";
@@ -22,15 +24,14 @@ namespace MangaScraper.ViewModals
             string json = JsonSerializer.Serialize<BaseModel>(bm);
             using (var webClient = new WebClient())
             {
-                // Создаём коллекцию параметров
                 var pars = new NameValueCollection();
                 pars.Add("Autor", bm.Author);
-                // Добавляем необходимые параметры в виде пар ключ, значение
+                byte[] arr = webClient.UploadValues(url, pars);
+                for(int i=0; i<arr.Length; i++)
+                {
+                    response += (char)arr[i];
+                }
 
-
-                // Посылаем параметры на сервер
-                // Может быть ответ в виде массива байт
-                var response = webClient.UploadValues(url, pars);
             }
             /*
              BaseModel bm = new BaseModel();
