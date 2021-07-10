@@ -17,7 +17,7 @@ namespace MangaScraper.ViewModals
         {
             Encoding utf8 = Encoding.UTF8;
             string response="";
-            string url = "http://u88497.test-handyhost.ru/space_manga/api/scraper_api.php";
+            string url = "http://u88497.test-handyhost.ru/space_manga/api/Scraper/api.php";
             BaseModel bm = new BaseModel();
             bm.Author = "kek";
             bm.Category = "lol";
