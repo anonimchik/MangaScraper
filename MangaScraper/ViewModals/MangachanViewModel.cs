@@ -25,13 +25,12 @@ namespace MangaScraper.ViewModals
             using (var webClient = new WebClient())
             {
                 var pars = new NameValueCollection();
-                pars.Add("Autor", bm.Author);
+                pars.Add("Author", json);
                 byte[] arr = webClient.UploadValues(url, pars);
                 for(int i=0; i<arr.Length; i++)
                 {
                     response += (char)arr[i];
                 }
-
             }
             /*
              BaseModel bm = new BaseModel();
