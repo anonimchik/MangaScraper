@@ -8,6 +8,7 @@ using System.Net;
 using System.Collections.Specialized;
 using System.Text.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MangaScraper.ViewModals
 {
@@ -17,20 +18,17 @@ namespace MangaScraper.ViewModals
         {
             Encoding utf8 = Encoding.UTF8;
             string response="";
-            string url = "http://u88497.test-handyhost.ru/space_manga/api/Scraper/api.php";
+            string url = "http://95.54.44.39:60000/MyWeb/SpaceManga/Scraper/scraper.php"; //исполняемый файл
             BaseModel bm = new BaseModel();
-            bm.Author = "kek";
+            bm.Author = "том2";
             bm.Category = "lol";
-            string json = JsonSerializer.Serialize<BaseModel>(bm);
+            string json = JsonSerializer.Serialize<BaseModel>(bm); //формирование json строки для отправки на сервер
             using (var webClient = new WebClient())
             {
                 var pars = new NameValueCollection();
-                pars.Add("Author", json);
-                byte[] arr = webClient.UploadValues(url, pars);
-                for(int i=0; i<arr.Length; i++)
-                {
-                    response += (char)arr[i];
-                }
+                pars.Add("obj", json); //post данные 
+                response = Encoding.Default.GetString(webClient.UploadValues(url, pars)); //получение ответа от сервера
+                response = Regex.Replace(response, @"\W", ""); //удаление лишнего в ответе сервера
             }
             /*
              BaseModel bm = new BaseModel();
