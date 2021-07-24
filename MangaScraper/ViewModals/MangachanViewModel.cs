@@ -8,7 +8,8 @@ using System.Net;
 using System.Collections.Specialized;
 using System.Text.Json;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace MangaScraper.ViewModals
 {
@@ -16,33 +17,20 @@ namespace MangaScraper.ViewModals
     {
         public void MangachanMain()
         {
-            Encoding utf8 = Encoding.UTF8;
-            string response="";
-            string url = "http://95.54.44.39:60000/MyWeb/SpaceManga/Scraper/scraper.php"; //исполняемый файл
-            BaseModel bm = new BaseModel();
-            bm.Author = "том2";
-            bm.Category = "lol";
-            string json = JsonSerializer.Serialize<BaseModel>(bm); //формирование json строки для отправки на сервер
-            using (var webClient = new WebClient())
-            {
-                var pars = new NameValueCollection();
-                pars.Add("obj", json); //post данные 
-                response = Encoding.Default.GetString(webClient.UploadValues(url, pars)); //получение ответа от сервера
-                response = Regex.Replace(response, @"\W", ""); //удаление лишнего в ответе сервера
-            }
-            /*
+
              BaseModel bm = new BaseModel();
              bm.SourceUrl = "https://manga-chan.me/";
              var options = new EdgeOptions(); //задание опций для Edge
              options.UseChromium = true;
              using(IWebDriver drv=new EdgeDriver(options))
-            */
+            
             {
-                /*getPagesList(drv, bm);
+                getPagesList(drv, bm);
                 getTitlePageUrl(drv, bm);
                 getTitleInfo(drv, bm);
                 getChapterImages(drv, bm);
-                */
+                sendDataToServer(bm);
+                
 
             }
         }
@@ -55,6 +43,7 @@ namespace MangaScraper.ViewModals
         {
             drv.Navigate().GoToUrl(bm.SourceUrl + "catalog");
             ICollection<IWebElement> pages = drv.FindElements(By.XPath("//a[contains(@href,'?offset=')]"));
+            bm.CatalogPages.Add("https://manga-chan.me/catalog?offset=0");
             foreach (var _pages in pages)
             {
                 if (!bm.CatalogPages.Contains(_pages.GetAttribute("href")))
@@ -102,8 +91,7 @@ namespace MangaScraper.ViewModals
                 ICollection<IWebElement> translators = drv.FindElements(By.XPath("//a[contains(@href, '/translation/')]"));
                 foreach (var _translator in translators)
                 {
-                    if (_translator.Text != "")
-                        bm.Translators.Add(_translator.Text);
+                    if (_translator.Text != "") bm.Translators.Add(_translator.Text);
                 }
                 string[] titles = Regex.Split(drv.FindElement(By.XPath("//td[contains(text(), 'Другие названия')]/parent::tr/td[2]/h2")).Text, @" / |;");
                 foreach (var _title in titles)
@@ -113,8 +101,9 @@ namespace MangaScraper.ViewModals
                 ICollection<IWebElement> authors = drv.FindElements(By.XPath("//a[contains(@href, '/mangaka/')]"));
                 foreach (var _author in authors)
                 {
-                    bm.Authors.Add(_author.Text);
+                    if(_author.Text!="")bm.Authors.Add(_author.Text);
                 }
+                bm.BackgroundImg = drv.FindElement(By.XPath("//img[@id='cover']")).GetAttribute("src");
                 bm.Description = drv.FindElement(By.XPath("//div[@id='description']")).Text;
                 ICollection<IWebElement> chapters = drv.FindElements(By.XPath("//div[@class='manga2']/a"));
                 foreach (var _chapter in chapters)
@@ -131,8 +120,7 @@ namespace MangaScraper.ViewModals
             for (int i = 0; i < bm.Chapters.Count; i++)
             {
                 drv.Navigate().GoToUrl(bm.Chapters[i]);
-                IList<IWebElement> page = drv.FindElements(By.XPath("//select[@class='drop']/option"));
-                int count = int.Parse(page[page.Count - 1].Text.Substring(page[page.Count - 1].Text.IndexOf(". ") + 1, page[page.Count - 1].Text.Length - page[page.Count - 1].Text.IndexOf(". ") - 1)); //кол-во страниц конкретной главы
+                int count = int.Parse(drv.FindElements(By.XPath("//div[@id='thumbs']/a")).Count.ToString());
                 List<String> subImages = new List<String>();
                 for (int j = 1; j <= count; j++)
                 {
@@ -144,6 +132,33 @@ namespace MangaScraper.ViewModals
                 break;
             }
             bm.Images.Reverse();
+        }
+
+        /// <summary>
+        /// Отправка данных на сервре для записи в базу данных
+        /// </summary>
+        /// <param name="bm"></param>
+        public void sendDataToServer(BaseModel bm)
+        {
+            string json = "",
+                response = "";
+            string url = "http://95.54.44.39:60000/MyWeb/SpaceManga/Scraper/scraper.php"; //исполняемый файл;
+            var options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+            json = JsonSerializer.Serialize(bm, options); //формирование json строки для отправки на сервер
+            json = Regex.Replace(json, @"[^a-zA-Zа-яА-ЯёЁ0-9""\:\{\}\].\-\,\\_ //\[\]]", "");
+            json = Regex.Replace(json, @"( ){2,}", "");
+            json = Regex.Replace(json, @"(\\"")", "");
+            using (var webClient = new WebClient())
+            {
+                var pars = new NameValueCollection();
+                pars.Add("obj", json); //post данные 
+                response = Encoding.UTF8.GetString(webClient.UploadValues(url, pars)); //получение ответа от сервера
+                response = Regex.Replace(response, @"\W", ""); //удаление лишнего в ответе сервера
+            }
         }
     }
 }
