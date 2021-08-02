@@ -5,6 +5,7 @@ using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
 using System;
 using System.Net;
+using System.IO;
 using System.Collections.Specialized;
 using System.Text.Json;
 using System.Text;
@@ -18,19 +19,19 @@ namespace MangaScraper.ViewModals
         public void MangachanMain()
         {
 
-             BaseModel bm = new BaseModel();
-             bm.SourceUrl = "https://manga-chan.me/";
-             var options = new EdgeOptions(); //задание опций для Edge
-             options.UseChromium = true;
-             using(IWebDriver drv=new EdgeDriver(options))
-            
+            BaseModel bm = new BaseModel();
+            bm.SourceUrl = "https://manga-chan.me/";
+            var options = new EdgeOptions(); //задание опций для Edge
+            options.UseChromium = true;
+            using (IWebDriver drv = new EdgeDriver(options))
+
             {
+                uploadImagesToServer();
                 getPagesList(drv, bm);
                 getTitlePageUrl(drv, bm);
                 getTitleInfo(drv, bm);
                 getChapterImages(drv, bm);
                 sendDataToServer(bm);
-                
 
             }
         }
@@ -101,7 +102,7 @@ namespace MangaScraper.ViewModals
                 ICollection<IWebElement> authors = drv.FindElements(By.XPath("//a[contains(@href, '/mangaka/')]"));
                 foreach (var _author in authors)
                 {
-                    if(_author.Text!="")bm.Authors.Add(_author.Text);
+                    if (_author.Text != "") bm.Authors.Add(_author.Text);
                 }
                 bm.BackgroundImg = drv.FindElement(By.XPath("//img[@id='cover']")).GetAttribute("src");
                 bm.Description = drv.FindElement(By.XPath("//div[@id='description']")).Text;
@@ -152,6 +153,7 @@ namespace MangaScraper.ViewModals
             json = Regex.Replace(json, @"[^a-zA-Zа-яА-ЯёЁ0-9""\:\{\}\].\-\,\\_ //\[\]]", "");
             json = Regex.Replace(json, @"( ){2,}", "");
             json = Regex.Replace(json, @"(\\"")", "");
+            json = Regex.Replace(json, @"\\r\\nПрислать описание", "");
             using (var webClient = new WebClient())
             {
                 var pars = new NameValueCollection();
@@ -159,6 +161,52 @@ namespace MangaScraper.ViewModals
                 response = Encoding.UTF8.GetString(webClient.UploadValues(url, pars)); //получение ответа от сервера
                 response = Regex.Replace(response, @"\W", ""); //удаление лишнего в ответе сервера
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void uploadImagesToServer()
+        {
+            /*
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(@"ftp://95.54.44.39:21/SpaceManga/Titles/sd.jpg");
+            request.Method = WebRequestMethods.Ftp.UploadFile;
+            request.Credentials = new NetworkCredential("admin", "64785839");
+            request.UseBinary = true;
+            request.KeepAlive = true;
+            request.UsePassive = true;
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+            */
+
+            var request = (FtpWebRequest)WebRequest.Create(@"ftp://95.54.44.39:21/SpaceManga/Titles/sd.jpg");
+            request.Method = WebRequestMethods.Ftp.UploadFile;
+            request.Credentials = new NetworkCredential("admin", "64785839");
+            request.UseBinary = true;
+            request.UsePassive = true;
+            request.KeepAlive = true;
+            using(var fileStream = File.OpenRead("D:/sd.jpg"))
+            {
+                try
+                {
+                    using (var requestStream = request.GetRequestStream())
+                    {
+                        fileStream.CopyTo(requestStream);
+                        requestStream.Close();
+                        var response = (FtpWebResponse)request.GetResponse();
+                        fileStream.Close();
+                    }
+                }
+                catch (Exception ex) { }
+            }
+
+           
+            /*
+            WebClient client = new WebClient();
+            client.Credentials = new NetworkCredential("admin", "64785839");
+            client.UploadFile(
+                "ftp://95.54.44.39/SpaceManga/Titles/sd.jpg", "D:/sd.jpg");
+            */
+
         }
     }
 }
