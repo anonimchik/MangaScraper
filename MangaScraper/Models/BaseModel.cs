@@ -26,7 +26,7 @@ namespace MangaScraper
         /// <summary>
         /// Альтернативные названия
         /// </summary>
-        private List<String> _otherTitles=new List<String>();
+        private List<String> _otherTitles = new List<String>();
         /// <summary>
         /// Фоновое изображение
         /// </summary>
@@ -66,7 +66,7 @@ namespace MangaScraper
         /// <summary>
         /// Список авторов
         /// </summary>
-        private List<String> _authors=new List<String>();
+        private List<String> _authors = new List<String>();
         /// <summary>
         /// Список глав
         /// </summary>
@@ -92,21 +92,21 @@ namespace MangaScraper
         /// </summary>
         private List<String> _tranlators = new List<String>();
         /// <summary>
+        /// Список расширений в конкретной главе
+        /// </summary>
+        private List<String> _expansion = new List<String>();
+        /// <summary>
         /// Список списков 
         /// </summary>
-        private List<List<string>> _images = new List<List<string>>();
+        private List<List<String>> _images = new List<List<String>>();
         /// <summary>
-        /// Список ссылок на страницы
+        /// Путь к картинке в локальном хранилище
         /// </summary>
-        private List<String> _catalogPages = new List<String>();
-        /// <summary>
-        /// Список ссылок на конректный тайтл
-        /// </summary>
-        private List<String> _titlePages = new List<String>();
+        private List<List<String>> _pathImages = new List<List<String>>();
         public string SourceUrl
         {
             get { return _sourceUrl; }
-            set 
+            set
             {
                 _sourceUrl = value;
                 OnPropertyChanged("SourceUrl");
@@ -145,7 +145,7 @@ namespace MangaScraper
         public List<String> OtherTitles
         {
             get { return _otherTitles; }
-            set 
+            set
             { _otherTitles = value;
                 OnPropertyChanged("OtherTitles");
             }
@@ -311,7 +311,16 @@ namespace MangaScraper
             }
         }
 
-        public List<List<string>> Images
+        public List<String> Expansion
+        {
+            get { return _expansion; }
+            set
+            {
+                _expansion = value;
+                OnPropertyChanged("Expansion");
+            }
+        }
+        public List<List<String>> Images
         {
             get { return _images; }
             set
@@ -321,20 +330,13 @@ namespace MangaScraper
             }
         }
 
-        public List<String> CatalogPages
+        public List<List<String>> PathImages
         {
-            get { return _catalogPages; }
+            get { return _pathImages; }
             set
             {
-                _catalogPages = value;
-            }
-        }
-        public List<String> TitlePages
-        {
-            get { return _titlePages; }
-            set
-            {
-                _titlePages = value;
+                _pathImages = value;
+                OnPropertyChanged("PathImages");
             }
         }
 

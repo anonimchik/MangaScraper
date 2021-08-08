@@ -18,20 +18,18 @@ namespace MangaScraper.ViewModals
     {
         public void MangachanMain()
         {
-
-            BaseModel bm = new BaseModel();
-            bm.SourceUrl = "https://manga-chan.me/";
+            SourceUrl = "https://manga-chan.me/";
             var options = new EdgeOptions(); //задание опций для Edge
             options.UseChromium = true;
             using (IWebDriver drv = new EdgeDriver(options))
-
             {
-                uploadImagesToServer();
-                getPagesList(drv, bm);
-                getTitlePageUrl(drv, bm);
-                getTitleInfo(drv, bm);
-                getChapterImages(drv, bm);
-                sendDataToServer(bm);
+                List<String> CatalogPages = new List<String>();
+                List<String> TitlePages = new List<String>();
+                //uploadImagesToServer();
+                getPagesList(drv, CatalogPages, SourceUrl);
+                getTitlePageUrl(drv, CatalogPages, TitlePages);
+                BaseModel bm = new BaseModel();
+                getTitleInfo(drv, TitlePages, bm);
 
             }
         }
@@ -40,15 +38,15 @@ namespace MangaScraper.ViewModals
         /// </summary>
         /// <param name="drv">EdgeDriver</param>
         /// <param name="bm">BaseModel</param>
-        public void getPagesList(IWebDriver drv, BaseModel bm)
+        public void getPagesList(IWebDriver drv, List<String> CatalogPages, string SourceUrl)
         {
-            drv.Navigate().GoToUrl(bm.SourceUrl + "catalog");
+            drv.Navigate().GoToUrl(SourceUrl + "catalog");
             ICollection<IWebElement> pages = drv.FindElements(By.XPath("//a[contains(@href,'?offset=')]"));
-            bm.CatalogPages.Add("https://manga-chan.me/catalog?offset=0");
+            CatalogPages.Add("https://manga-chan.me/catalog?offset=0");
             foreach (var _pages in pages)
             {
-                if (!bm.CatalogPages.Contains(_pages.GetAttribute("href")))
-                    bm.CatalogPages.Add(_pages.GetAttribute("href"));
+                if (!CatalogPages.Contains(_pages.GetAttribute("href")))
+                    CatalogPages.Add(_pages.GetAttribute("href"));
                 break;
             }
         }
@@ -57,27 +55,29 @@ namespace MangaScraper.ViewModals
         /// </summary>
         /// <param name="drv"></param>
         /// <param name="bm"></param>
-        public void getTitlePageUrl(IWebDriver drv, BaseModel bm)
+        public List<String> getTitlePageUrl(IWebDriver drv, List<String> CatalogPages, List<String> TitlePages)
         {
-            for (int i = 0; i < bm.CatalogPages.Count; i++)
+            for (int i = 0; i < CatalogPages.Count; i++)
             {
-                drv.Navigate().GoToUrl(bm.CatalogPages[i]);
+                drv.Navigate().GoToUrl(CatalogPages[i]);
                 ICollection<IWebElement> titlePages = drv.FindElements(By.XPath("//a[@class='title_link']"));
                 foreach (var _titlePage in titlePages)
                 {
-                    bm.TitlePages.Add(_titlePage.GetAttribute("href"));
+                   TitlePages.Add(_titlePage.GetAttribute("href"));
                 }
                 break;
             }
+            return TitlePages;
         }
         /// <summary>
         /// Получение информации о тайтле
         /// </summary>
-        public void getTitleInfo(IWebDriver drv, BaseModel bm)
+        public void getTitleInfo(IWebDriver drv, List<String> TitlePages, BaseModel bm)
         {
-            for (int i = 0; i < bm.TitlePages.Count; i++)
+            for (int i = 0; i < TitlePages.Count; i++)
             {
-                drv.Navigate().GoToUrl(bm.TitlePages[i]);
+                bm = new BaseModel();
+                drv.Navigate().GoToUrl(TitlePages[i]);
                 bm.Category = drv.FindElement(By.XPath("//a[contains(@href,'/type')]")).Text;
                 bm.Title = drv.FindElement(By.XPath("//a[@class='title_top_a']")).Text;
                 bm.TitleStatus = drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.Substring(drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.IndexOf(", ") + 2, drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.Length - drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.IndexOf(", ") - 2);
@@ -113,9 +113,15 @@ namespace MangaScraper.ViewModals
                 }
                 break;
             }
-
+            getChapterImages(drv, bm);
+            downloadImagesToLocalStorage(bm);
+            sendDataToServer(bm);
         }
-
+        /// <summary>
+        /// Получение изображений каждой главsы
+        /// </summary>
+        /// <param name="drv"></param>
+        /// <param name="bm"></param>
         public void getChapterImages(IWebDriver drv, BaseModel bm)
         {
             for (int i = 0; i < bm.Chapters.Count; i++)
@@ -123,16 +129,19 @@ namespace MangaScraper.ViewModals
                 drv.Navigate().GoToUrl(bm.Chapters[i]);
                 int count = int.Parse(drv.FindElements(By.XPath("//div[@id='thumbs']/a")).Count.ToString());
                 List<String> subImages = new List<String>();
+                List<String> subPathImages = new List<String>();
                 for (int j = 1; j <= count; j++)
                 {
                     drv.Navigate().GoToUrl(bm.Chapters[i] + "?page=" + j);
-                    subImages.Add(drv.FindElement(By.XPath("//a[contains(@href, '#page=')]/img")).GetAttribute("src"));
-                    break;
+                    subImages.Add(drv.FindElement(By.XPath("//div[@id='image']/a/img")).GetAttribute("src"));
+                   
                 }
+                var volCh = drv.FindElement(By.XPath("//a[@class='a-series-volch volch']")).Text.Split(" ");
+                subPathImages.Add(bm.Title + "/v" + volCh[1] + "/ch" + volCh[3]);
                 bm.Images.Add(new List<String>(subImages));
+                bm.PathImages.Add(new List<String>(subPathImages));
                 break;
             }
-            bm.Images.Reverse();
         }
 
         /// <summary>
@@ -208,5 +217,33 @@ namespace MangaScraper.ViewModals
             */
 
         }
+
+        public void downloadImagesToLocalStorage(BaseModel bm)
+        {
+            WebClient client = new WebClient();
+            for (int i = 0; i < bm.Images.Count; i++)
+            {
+                for (int j = 0; j < bm.Images[i].Count; j++)
+                {
+                    DirectoryInfo dir = new DirectoryInfo("D:/" + bm.Title + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + bm.PathImages[i][j].Split("/")[2]);
+                    if (!dir.Exists) dir.Create();
+                    client.DownloadFile(bm.Images[i][j], "D:/" + bm.Title + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + bm.PathImages[i][j].Split("/")[2] + "/" + (j + 1) + bm.Images[i][j].Substring(bm.Images[i][j].LastIndexOf("."), 4));
+                    break;
+                }
+            }
+        }
+
+        public void getExpansion(List<String> subImages)
+        {
+            int fpngindex, 
+                lpngindex, 
+                fjpgindex, 
+                ljpgindex;
+            for (int i = 0; i < subImages.Count; i++) 
+            {
+                
+            }
+        }
+
     }
 }
