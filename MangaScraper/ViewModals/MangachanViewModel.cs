@@ -223,14 +223,33 @@ namespace MangaScraper.ViewModals
             WebClient client = new WebClient();
             for (int i = 0; i < bm.Images.Count; i++)
             {
+                string jpg = "",
+                       png = "";
+                List<String> expansion = new List<String>();
                 for (int j = 0; j < bm.Images[i].Count; j++)
                 {
                     DirectoryInfo dir = new DirectoryInfo("D:/" + bm.Title + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + bm.PathImages[i][j].Split("/")[2]);
                     if (!dir.Exists) dir.Create();
-                    client.DownloadFile(bm.Images[i][j], "D:/" + bm.Title + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + bm.PathImages[i][j].Split("/")[2] + "/" + (j + 1) + bm.Images[i][j].Substring(bm.Images[i][j].LastIndexOf("."), 4));
+                    if (bm.Images[i][j].IndexOf(".jpg") > -1) 
+                    {
+                        jpg += j + ",";
+                    }
+                    if (bm.Images[i][j].IndexOf(".png") > -1)
+                    {
+                        png += j + ",";
+                    }
+                    // client.DownloadFile(bm.Images[i][j], "D:/" + bm.Title + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + bm.PathImages[i][j].Split("/")[2] + "/" + (j + 1) + bm.Images[i][j].Substring(bm.Images[i][j].LastIndexOf("."), 4));
                     break;
                 }
+                expansion.Add(Regex.Replace(jpg, @"\,$", "") + "|" + Regex.Replace(png, @"\,$", ""));
+                bm.Expansion.Add(new List<String>(expansion));
+                break;
             }
+        }
+
+        public void deleteImagesFromLocalStorage()
+        {
+            DirectoryInfo dir=new DirectoryInfo("D:")
         }
 
         public void getExpansion(List<String> subImages)

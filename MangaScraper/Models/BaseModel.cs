@@ -94,7 +94,7 @@ namespace MangaScraper
         /// <summary>
         /// Список расширений в конкретной главе
         /// </summary>
-        private List<String> _expansion = new List<String>();
+        private List<List<String>> _expansion = new List<List<String>>();
         /// <summary>
         /// Список списков 
         /// </summary>
@@ -311,7 +311,7 @@ namespace MangaScraper
             }
         }
 
-        public List<String> Expansion
+        public List<List<String>> Expansion
         {
             get { return _expansion; }
             set
