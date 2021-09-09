@@ -13,7 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Edge.SeleniumTools" Version="3.141.2" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
-    <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="91.0.864.37" />
+    <PackageReference Include="Selenium.WebDriver.MSEdgeDriver" Version="93.0.967" />
   </ItemGroup>
 
   <ItemGroup>

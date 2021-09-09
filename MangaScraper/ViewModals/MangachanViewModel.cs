@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using System.Threading;
 
 namespace MangaScraper.ViewModals
 {
@@ -21,6 +22,7 @@ namespace MangaScraper.ViewModals
             SourceUrl = "https://manga-chan.me/";
             var options = new EdgeOptions(); //задание опций для Edge
             options.UseChromium = true;
+            options.PageLoadStrategy = PageLoadStrategy.Eager;
             using (IWebDriver drv = new EdgeDriver(options))
             {
                 List<String> CatalogPages = new List<String>();
@@ -33,6 +35,7 @@ namespace MangaScraper.ViewModals
 
             }
         }
+
         /// <summary>
         /// Получение списка страниц
         /// </summary>
@@ -50,6 +53,7 @@ namespace MangaScraper.ViewModals
                 break;
             }
         }
+
         /// <summary>
         /// Получение списка на страницы тайтлов
         /// </summary>
@@ -69,6 +73,7 @@ namespace MangaScraper.ViewModals
             }
             return TitlePages;
         }
+
         /// <summary>
         /// Получение информации о тайтле
         /// </summary>
@@ -79,7 +84,9 @@ namespace MangaScraper.ViewModals
                 bm = new BaseModel();
                 drv.Navigate().GoToUrl(TitlePages[i]);
                 bm.Category = drv.FindElement(By.XPath("//a[contains(@href,'/type')]")).Text;
-                bm.Title = drv.FindElement(By.XPath("//a[@class='title_top_a']")).Text;
+                string[] title = drv.FindElement(By.XPath("//a[@class='title_top_a']")).Text.Split(" (");
+                bm.Title = title[0];
+                bm.EngTitle = Regex.Replace(title[1], @"\)", "");
                 bm.TitleStatus = drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.Substring(drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.IndexOf(", ") + 2, drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.Length - drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.IndexOf(", ") - 2);
                 bm.VolumeNumber = byte.Parse(drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.Substring(0, drv.FindElement(By.XPath("//td[contains(text(), 'Статус (Томов)')]/parent::tr/td[2]")).Text.IndexOf(" том")));
                 bm.TranslateStatus = drv.FindElement(By.XPath("//td[contains(text(), 'Загружено')]/parent::tr/td[2]")).Text.Substring(drv.FindElement(By.XPath("//td[contains(text(), 'Загружено')]/parent::tr/td[2]")).Text.IndexOf(", ") + 2, drv.FindElement(By.XPath("//td[contains(text(), 'Загружено')]/parent::tr/td[2]")).Text.Length - drv.FindElement(By.XPath("//td[contains(text(), 'Загружено')]/parent::tr/td[2]")).Text.IndexOf(", ") - 2);
@@ -110,13 +117,18 @@ namespace MangaScraper.ViewModals
                 foreach (var _chapter in chapters)
                 {
                     bm.Chapters.Add(_chapter.GetAttribute("href"));
+                    break;
                 }
                 break;
             }
             getChapterImages(drv, bm);
-            downloadImagesToLocalStorage(bm);
+            //downloadImagesToLocalStorage(bm);
+            createDirectoriesOnServer(bm);
+            uploadImagesToServer(bm);
+            deleteImagesFromLocalStorage();
             sendDataToServer(bm);
         }
+
         /// <summary>
         /// Получение изображений каждой главsы
         /// </summary>
@@ -127,17 +139,19 @@ namespace MangaScraper.ViewModals
             for (int i = 0; i < bm.Chapters.Count; i++)
             {
                 drv.Navigate().GoToUrl(bm.Chapters[i]);
+                string[] arr=Regex.Replace(drv.FindElement(By.XPath("//a[@class='a-series-volch volch']")).Text, @"(Том |Глава )", "").Split(" ");
+                bm.Path.Add(bm.Title + "/v" + arr[0] + "/ch" + arr[1]);
                 int count = int.Parse(drv.FindElements(By.XPath("//div[@id='thumbs']/a")).Count.ToString());
                 List<String> subImages = new List<String>();
                 List<String> subPathImages = new List<String>();
                 for (int j = 1; j <= count; j++)
-                {
+                { 
                     drv.Navigate().GoToUrl(bm.Chapters[i] + "?page=" + j);
                     subImages.Add(drv.FindElement(By.XPath("//div[@id='image']/a/img")).GetAttribute("src"));
-                   
+                    break;
                 }
                 var volCh = drv.FindElement(By.XPath("//a[@class='a-series-volch volch']")).Text.Split(" ");
-                subPathImages.Add(bm.Title + "/v" + volCh[1] + "/ch" + volCh[3]);
+                subPathImages.Add(Regex.Replace(bm.Title, @"[^A-Za-zА-Яа-яЁё0-9]", "") + "/v" + volCh[1] + "/ch" + volCh[3]);
                 bm.Images.Add(new List<String>(subImages));
                 bm.PathImages.Add(new List<String>(subPathImages));
                 break;
@@ -152,7 +166,7 @@ namespace MangaScraper.ViewModals
         {
             string json = "",
                 response = "";
-            string url = "http://95.54.44.39:60000/MyWeb/SpaceManga/Scraper/scraper.php"; //исполняемый файл;
+            string url = "http://95.54.44.39:6001/MyWeb/SpaceManga/Scraper/scraper.php"; //исполняемый файл;
             var options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -161,85 +175,97 @@ namespace MangaScraper.ViewModals
             json = JsonSerializer.Serialize(bm, options); //формирование json строки для отправки на сервер
             json = Regex.Replace(json, @"[^a-zA-Zа-яА-ЯёЁ0-9""\:\{\}\].\-\,\\_ //\[\]]", "");
             json = Regex.Replace(json, @"( ){2,}", "");
+
             json = Regex.Replace(json, @"(\\"")", "");
             json = Regex.Replace(json, @"\\r\\nПрислать описание", "");
             using (var webClient = new WebClient())
             {
                 var pars = new NameValueCollection();
                 pars.Add("obj", json); //post данные 
-                response = Encoding.UTF8.GetString(webClient.UploadValues(url, pars)); //получение ответа от сервера
-                response = Regex.Replace(response, @"\W", ""); //удаление лишнего в ответе сервера
+                response = Regex.Replace(Encoding.UTF8.GetString(webClient.UploadValues(url, pars)), @"\W", ""); //удаление лишнего в ответе сервера
             }
         }
 
         /// <summary>
-        /// 
+        /// Создание папок на сервере
         /// </summary>
-        public void uploadImagesToServer()
+        /// <param name="bm">Объект класса BaseModel</param>
+        public void createDirectoriesOnServer(BaseModel bm)
         {
-            /*
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(@"ftp://95.54.44.39:21/SpaceManga/Titles/sd.jpg");
-            request.Method = WebRequestMethods.Ftp.UploadFile;
-            request.Credentials = new NetworkCredential("admin", "64785839");
-            request.UseBinary = true;
-            request.KeepAlive = true;
-            request.UsePassive = true;
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-            */
-
-            var request = (FtpWebRequest)WebRequest.Create(@"ftp://95.54.44.39:21/SpaceManga/Titles/sd.jpg");
-            request.Method = WebRequestMethods.Ftp.UploadFile;
-            request.Credentials = new NetworkCredential("admin", "64785839");
-            request.UseBinary = true;
-            request.UsePassive = true;
-            request.KeepAlive = true;
-            using(var fileStream = File.OpenRead("D:/sd.jpg"))
+            string json = "",
+                response = "";
+            string url = "http://95.54.44.39:6001/MyWeb/SpaceManga/Scraper/scraper.php"; //исполняемый файл;
+            var options = new JsonSerializerOptions
             {
-                try
-                {
-                    using (var requestStream = request.GetRequestStream())
-                    {
-                        fileStream.CopyTo(requestStream);
-                        requestStream.Close();
-                        var response = (FtpWebResponse)request.GetResponse();
-                        fileStream.Close();
-                    }
-                }
-                catch (Exception ex) { }
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+            json = JsonSerializer.Serialize(bm, options); //формирование json строки для отправки на сервер
+            using (var webClient = new WebClient())
+            {
+                var pars = new NameValueCollection();
+                pars.Add("obj", json); //post данные 
+                response = Regex.Replace(Encoding.UTF8.GetString(webClient.UploadValues(url, pars)), @"\W", ""); //удаление лишнего в ответе сервера
             }
-
-           
-            /*
-            WebClient client = new WebClient();
-            client.Credentials = new NetworkCredential("admin", "64785839");
-            client.UploadFile(
-                "ftp://95.54.44.39/SpaceManga/Titles/sd.jpg", "D:/sd.jpg");
-            */
-
         }
 
+        /// <summary>
+        /// Загрузка картинок на сервер
+        /// </summary>
+        /// <param name="bm">Объект класса BaseModel</param>
+        public void uploadImagesToServer(BaseModel bm)
+        {        
+            for (int i = 0; i < bm.Images.Count; i++)
+            {
+                for (int j = 0; j < bm.Images[i].Count; j++)
+                {
+                    var expansion = bm.Images[i][j].IndexOf(".jpeg") == 1 ? ".jpeg" : ".png";
+                    FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://95.54.44.39/SpaceManga/Titles/" + bm.PathImages[i][j] + "/" + "1.jpg");
+                    req.Credentials = new NetworkCredential("admin", "64785839");
+                    req.Method = WebRequestMethods.Ftp.UploadFile;
+                    try
+                    {
+                        using (Stream fileStream = File.OpenRead(@"D:\1.jpg"))
+                        using (Stream ftpStream = req.GetRequestStream())
+                        {
+                            fileStream.CopyTo(ftpStream);
+                        }
+                    }
+                    catch(Exception ex) { }
+                }
+                break;
+            }
+
+        }
+        
+        /// <summary>
+        /// Скачивание картинок в локальное хранилище
+        /// </summary>
+        /// <param name="bm"></param>
         public void downloadImagesToLocalStorage(BaseModel bm)
         {
             WebClient client = new WebClient();
             for (int i = 0; i < bm.Images.Count; i++)
             {
                 string jpg = "",
-                       png = "";
+                       png = "",
+                       exp = "";
                 List<String> expansion = new List<String>();
                 for (int j = 0; j < bm.Images[i].Count; j++)
                 {
-                    DirectoryInfo dir = new DirectoryInfo("D:/" + bm.Title + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + bm.PathImages[i][j].Split("/")[2]);
+                    exp = (bm.Images[i][j].IndexOf(".jpg")) > -1 ? ".jpg" : ".png";
+                    DirectoryInfo dir = new DirectoryInfo("A:MangaScraper/" + bm.Path[i] + "/");
                     if (!dir.Exists) dir.Create();
                     if (bm.Images[i][j].IndexOf(".jpg") > -1) 
                     {
-                        jpg += j + ",";
+                        jpg += (j+1) + ",";
                     }
                     if (bm.Images[i][j].IndexOf(".png") > -1)
                     {
-                        png += j + ",";
+                        png += (j+1) + ",";
                     }
-                    // client.DownloadFile(bm.Images[i][j], "D:/" + bm.Title + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + bm.PathImages[i][j].Split("/")[2] + "/" + (j + 1) + bm.Images[i][j].Substring(bm.Images[i][j].LastIndexOf("."), 4));
-                    break;
+                    client.DownloadFile(bm.Images[i][j], "A:MangaScraper/" +bm.Path[i]+"/"+ (j + 1).ToString() + exp);
+                    //break;
                 }
                 expansion.Add(Regex.Replace(jpg, @"\,$", "") + "|" + Regex.Replace(png, @"\,$", ""));
                 bm.Expansion.Add(new List<String>(expansion));
@@ -247,21 +273,12 @@ namespace MangaScraper.ViewModals
             }
         }
 
+        /// <summary>
+        /// Удаление папки MangaScraper
+        /// </summary>
         public void deleteImagesFromLocalStorage()
         {
-            DirectoryInfo dir=new DirectoryInfo("D:")
-        }
-
-        public void getExpansion(List<String> subImages)
-        {
-            int fpngindex, 
-                lpngindex, 
-                fjpgindex, 
-                ljpgindex;
-            for (int i = 0; i < subImages.Count; i++) 
-            {
-                
-            }
+            Directory.Delete("A:MangaScraper/", true);
         }
 
     }

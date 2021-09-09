@@ -84,6 +84,10 @@ namespace MangaScraper
         /// </summary>
         private ushort _releaseYear;
         /// <summary>
+        /// Путь
+        /// </summary>
+        private List<String> _path = new List<String>();
+        /// <summary>
         /// Список жанров
         /// </summary>
         private List<String> _genres = new List<String>();
@@ -288,6 +292,16 @@ namespace MangaScraper
             {
                 _releaseYear = value;
                 OnPropertyChanged("ReleaseYear");
+            }
+        }
+
+        public List<String> Path
+        {
+            get { return _path; }
+            set
+            {
+                _path = value;
+                OnPropertyChanged("Path");
             }
         }
 
