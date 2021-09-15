@@ -226,7 +226,7 @@ namespace MangaScraper.ViewModals
             try
             {
                 /*   получение задней картины   */
-                mng.BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src");
+                //mng.BackgroundImg = drv.FindElements(By.XPath(@"//img[@class='fotorama__img']"))[0].GetAttribute("src");
             }
             catch (Exception e)
             {

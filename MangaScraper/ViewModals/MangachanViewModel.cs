@@ -111,7 +111,7 @@ namespace MangaScraper.ViewModals
                 {
                     if (_author.Text != "") bm.Authors.Add(_author.Text);
                 }
-                bm.BackgroundImg = drv.FindElement(By.XPath("//img[@id='cover']")).GetAttribute("src");
+                //bm.BackgroundImg = drv.FindElement(By.XPath("//img[@id='cover']")).GetAttribute("src");
                 bm.Description = drv.FindElement(By.XPath("//div[@id='description']")).Text;
                 ICollection<IWebElement> chapters = drv.FindElements(By.XPath("//div[@class='manga2']/a"));
                 foreach (var _chapter in chapters)
@@ -122,10 +122,10 @@ namespace MangaScraper.ViewModals
                 break;
             }
             getChapterImages(drv, bm);
-            //downloadImagesToLocalStorage(bm);
-            createDirectoriesOnServer(bm);
-            uploadImagesToServer(bm);
-            deleteImagesFromLocalStorage();
+            downloadImagesToLocalStorage(bm);
+            //createDirectoriesOnServer(bm);
+            //uploadImagesToServer(bm);
+            //deleteImagesFromLocalStorage();
             sendDataToServer(bm);
         }
 
@@ -173,7 +173,7 @@ namespace MangaScraper.ViewModals
                 WriteIndented = true
             };
             json = JsonSerializer.Serialize(bm, options); //формирование json строки для отправки на сервер
-            json = Regex.Replace(json, @"[^a-zA-Zа-яА-ЯёЁ0-9""\:\{\}\].\-\,\\_ //\[\]]", "");
+            //json = Regex.Replace(json, @"[^a-zA-Zа-яА-ЯёЁ0-9""\:\{\}\].\-\,\\_ //\[\]]", "");
             json = Regex.Replace(json, @"( ){2,}", "");
 
             json = Regex.Replace(json, @"(\\"")", "");
@@ -200,11 +200,11 @@ namespace MangaScraper.ViewModals
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 WriteIndented = true
             };
-            json = JsonSerializer.Serialize(bm, options); //формирование json строки для отправки на сервер
+            json = JsonSerializer.Serialize(bm.PathImages, options); //формирование json строки для отправки на сервер
             using (var webClient = new WebClient())
             {
                 var pars = new NameValueCollection();
-                pars.Add("obj", json); //post данные 
+                pars.Add("dir", json); //post данные 
                 response = Regex.Replace(Encoding.UTF8.GetString(webClient.UploadValues(url, pars)), @"\W", ""); //удаление лишнего в ответе сервера
             }
         }
@@ -220,12 +220,12 @@ namespace MangaScraper.ViewModals
                 for (int j = 0; j < bm.Images[i].Count; j++)
                 {
                     var expansion = bm.Images[i][j].IndexOf(".jpeg") == 1 ? ".jpeg" : ".png";
-                    FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://95.54.44.39/SpaceManga/Titles/" + bm.PathImages[i][j] + "/" + "1.jpg");
+                    FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://95.54.44.39/SpaceManga/Titles/" + bm.PathImages[i][j] + "/" + (j + 1).ToString() + expansion);
                     req.Credentials = new NetworkCredential("admin", "64785839");
                     req.Method = WebRequestMethods.Ftp.UploadFile;
                     try
                     {
-                        using (Stream fileStream = File.OpenRead(@"D:\1.jpg"))
+                        using (Stream fileStream = File.OpenRead(@"A:MangaScraper/" + bm.PathImages[i][j] + "/" + (j + 1).ToString() + expansion)) 
                         using (Stream ftpStream = req.GetRequestStream())
                         {
                             fileStream.CopyTo(ftpStream);
@@ -254,7 +254,7 @@ namespace MangaScraper.ViewModals
                 for (int j = 0; j < bm.Images[i].Count; j++)
                 {
                     exp = (bm.Images[i][j].IndexOf(".jpg")) > -1 ? ".jpg" : ".png";
-                    DirectoryInfo dir = new DirectoryInfo("A:MangaScraper/" + bm.Path[i] + "/");
+                    DirectoryInfo dir = new DirectoryInfo("A:MangaScraper/" + bm.PathImages[i][j] + "/");
                     if (!dir.Exists) dir.Create();
                     if (bm.Images[i][j].IndexOf(".jpg") > -1) 
                     {
@@ -264,7 +264,7 @@ namespace MangaScraper.ViewModals
                     {
                         png += (j+1) + ",";
                     }
-                    client.DownloadFile(bm.Images[i][j], "A:MangaScraper/" +bm.Path[i]+"/"+ (j + 1).ToString() + exp);
+                    client.DownloadFile(bm.Images[i][j], "A:MangaScraper/" +bm.PathImages[i][j] +"/"+ (j + 1).ToString() + exp);
                     //break;
                 }
                 expansion.Add(Regex.Replace(jpg, @"\,$", "") + "|" + Regex.Replace(png, @"\,$", ""));

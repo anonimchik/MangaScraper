@@ -30,7 +30,7 @@ namespace MangaScraper
         /// <summary>
         /// Фоновое изображение
         /// </summary>
-        private string _backgroundImg;
+        private List<string> _backgroundImages = new List<string>();
         /// <summary>
         /// Описание манги
         /// </summary>
@@ -155,13 +155,13 @@ namespace MangaScraper
             }
         }
 
-        public string BackgroundImg
+        public List<string> BackgroundImages
         {
-            get { return _backgroundImg; }
+            get { return _backgroundImages; }
             set
             {
-                _backgroundImg = value;
-                OnPropertyChanged("BackgroundImg");
+                _backgroundImages = value;
+                OnPropertyChanged("BackgroundImages");
             }
         }
 

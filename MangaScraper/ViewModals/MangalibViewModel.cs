@@ -91,7 +91,7 @@ namespace MangaScraper.ViewModals
             {
                 driver.Navigate().GoToUrl(mg[i]); //переход на страницу конкретного тайтла
                 var img=driver.FindElement(By.XPath(@"//div[@class='media-sidebar__cover paper']/img"));
-                bm.BackgroundImg = img.GetAttribute("src"); //запись ссылки на обложку тайтла
+               // bm.BackgroundImg = img.GetAttribute("src"); //запись ссылки на обложку тайтла
                 bm.Title=driver.FindElement(By.XPath(@"//div[@class='media-name__main']")).Text; //запись названия тайтла
                 bm.EngTitle=driver.FindElement(By.XPath(@"//div[@class='media-name__alt']")).Text; //запись английского названия тайтла
                 bm.Category = driver.FindElement(By.XPath(@"//a[contains(@href,'types')]")).FindElement(By.XPath(@"//div[@class='media-info-list__value']")).Text; //запись категории
