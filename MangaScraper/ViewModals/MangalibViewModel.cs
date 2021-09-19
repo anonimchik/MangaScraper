@@ -163,7 +163,7 @@ namespace MangaScraper.ViewModals
 
             /*
                 |"var header=document.getElementsByClassName('tabs paper')[0];" +
-                |"var footer = document.getElementsByClassName('footer__inner paper')[0];" +
+                |"var footer = document.getElementsByClassName('footer__inner paper')[0];" + 
                 |"var pointY ={" +
                 |"firstPosition : header.offsetTop," +
                 |"secondPosition: footer.offsetTop" +

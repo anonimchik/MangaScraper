@@ -80,21 +80,28 @@ namespace MangaScraper.ViewModals
             for(int i = 0; i < chapter_number.Length; i++) //доделать скролинг таблицы с главами
             {
                 bm.Chapters.Add(link[i].GetAttribute("href") + "|" + chapter_number[i].Text + "|" + chapter_name[i].Text + "|" + translator[i].Text);
+                break;
             }
 
         }
 
         public void get_images_from_chapters(IWebDriver drv, BaseModel bm)
         {
-            List<string> sub_images = new List<string>();
+            //обрезание строки и получение названия картинки https://manga24.ru/Content/pages/onepiece/1025/op_1024_000a.jpg -> 000а.jpg
+
             for (int i = 0; i < bm.Chapters.Count; i++) //проход по главам
             {
+                List<string> sub_images = new List<string>();
                 drv.Navigate().GoToUrl(bm.Chapters[i].Split("|")[0]);
-                sub_images = new List<string>();
-                IWebElement[] sub_imgs = new IWebElement[drv.FindElements(By.XPath("//div[@id='preload']/img")).Count];
-                if(!sub_images.Contains(sub_imgs[0].GetAttribute("src")))sub_images.Add(sub_imgs[0].GetAttribute("src"));
+                int page_count = drv.FindElements(By.XPath("//select[@id='page']/option")).Count;
+                string[] path_to_file = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring((drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1), drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Length - (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1)).Split(@"_");
+                string path_to_dir = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring(0, (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/")+1));
+                string[] file_name = path_to_file[path_to_file.Length - 1].Split(".");
+                if (file_name[0].IndexOf("a")>-1) { file_name[0].}
+                bm.Images.Add(new List<string>(sub_images));
+                break;
             }
-            bm.Images.Add(new List<string>(sub_images));
+
         }
 
         public void download_images_to_local_storage()
