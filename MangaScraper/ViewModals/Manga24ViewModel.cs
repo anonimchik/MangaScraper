@@ -94,10 +94,53 @@ namespace MangaScraper.ViewModals
                 List<string> sub_images = new List<string>();
                 drv.Navigate().GoToUrl(bm.Chapters[i].Split("|")[0]);
                 int page_count = drv.FindElements(By.XPath("//select[@id='page']/option")).Count;
-                string[] path_to_file = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring((drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1), drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Length - (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1)).Split(@"_");
+                string[] _path_to_file = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring((drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1), drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Length - (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1)).Split(@"_");
+                string path_to_file = "";
+
+                /// Получение пути к файлу (картинке)
+                /// Пример: https://manga24.ru/Content/pages/onepiece/1024/op_tcb_1024_001.png
+                /// Результат: 
+                if (_path_to_file.Length > 0) 
+                {
+                    int l = 0;
+                    while (l<_path_to_file.Length-1)
+                    {
+                        path_to_file += _path_to_file[l] + "_";
+                        l++;
+                    }
+                }
                 string path_to_dir = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring(0, (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/")+1));
-                string[] file_name = path_to_file[path_to_file.Length - 1].Split(".");
-                if (file_name[0].IndexOf("a")>-1) { file_name[0].}
+                string[] file_name;
+                if (_path_to_file.Length > 0)
+                {
+                    file_name = _path_to_file[_path_to_file.Length - 1].Split(".");
+                }
+                else
+                {
+                    file_name = path_to_file.Split(".");
+                }
+
+                /// Формирование ссылки до картинки каждой главы путем получение первой ссылки на первую картинку.
+                /// После получения ссылки на первую картинку отпарвляются запросы к manga24 для получения расширения картинки
+                for (int j = 0; j < page_count; j++)
+                {
+                    if (_path_to_file[_path_to_file.Length-1].IndexOf("a")>-1)
+                    {
+                        if(!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + "." + file_name[1])) sub_images.Add(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]);
+                    }
+                    if (file_name[0].IndexOf("0") > -1)
+                    {
+                        if (j / 10 < 1)
+                        {
+                            file_name[0] = "00" + j.ToString();
+                        }
+                        else
+                        {
+                            file_name[0] = "0" + j.ToString();
+                        }
+                    }
+                    sub_images.Add(path_to_dir + path_to_file + file_name[0] +"."+ file_name[1]);
+                }
                 bm.Images.Add(new List<string>(sub_images));
                 break;
             }
