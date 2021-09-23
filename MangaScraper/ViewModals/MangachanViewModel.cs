@@ -222,7 +222,7 @@ namespace MangaScraper.ViewModals
                     var expansion = bm.Images[i][j].IndexOf(".jpeg") == 1 ? ".jpeg" : ".png";
                     FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://95.54.44.39/SpaceManga/Titles/" + bm.PathImages[i][j] + "/" + (j + 1).ToString() + expansion);
                     req.Credentials = new NetworkCredential("admin", "64785839");
-                    req.Method = WebRequestMethods.Ftp.UploadFile;
+                    req.Method = WebRequestMethods.Ftp.UploadFile; 
                     try
                     {
                         using (Stream fileStream = File.OpenRead(@"A:MangaScraper/" + bm.PathImages[i][j] + "/" + (j + 1).ToString() + expansion)) 

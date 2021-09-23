@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Edge.SeleniumTools;
 using OpenQA.Selenium;
 using System.Text.RegularExpressions;
+using System.Net;
 
 namespace MangaScraper.ViewModals
 {
@@ -63,7 +64,7 @@ namespace MangaScraper.ViewModals
         }
 
         /// <summary>
-        /// Получение ссылки на главу
+        /// Получение ссылки на главу c информацией о номере главы, названии главы и переводчиках
         /// </summary>
         /// <param name="drv"></param>
         /// <param name="bm"></param>
@@ -85,6 +86,11 @@ namespace MangaScraper.ViewModals
 
         }
 
+        /// <summary>
+        /// Получение списка с картинками к каждой главе
+        /// </summary>
+        /// <param name="drv">Объект класса IWebDriver</param>
+        /// <param name="bm">Объект класса BaseModel</param>
         public void get_images_from_chapters(IWebDriver drv, BaseModel bm)
         {
             //обрезание строки и получение названия картинки https://manga24.ru/Content/pages/onepiece/1025/op_1024_000a.jpg -> 000а.jpg
@@ -98,8 +104,6 @@ namespace MangaScraper.ViewModals
                 string path_to_file = "";
 
                 /// Получение пути к файлу (картинке)
-                /// Пример: https://manga24.ru/Content/pages/onepiece/1024/op_tcb_1024_001.png
-                /// Результат: 
                 if (_path_to_file.Length > 0) 
                 {
                     int l = 0;
@@ -119,27 +123,41 @@ namespace MangaScraper.ViewModals
                 {
                     file_name = path_to_file.Split(".");
                 }
+                bool is_png_image = false,
+                     is_jpg_image = false;
 
                 /// Формирование ссылки до картинки каждой главы путем получение первой ссылки на первую картинку.
                 /// После получения ссылки на первую картинку отпарвляются запросы к manga24 для получения расширения картинки
-                for (int j = 0; j < page_count; j++)
+                /// Далее формируется список с ссылками к картинкам
+                for (int j = 0; j < page_count-1; j++)
                 {
-                    if (_path_to_file[_path_to_file.Length-1].IndexOf("a")>-1)
+                    if (_path_to_file[_path_to_file.Length - 1].IndexOf("a") > -1)
                     {
-                        if(!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + "." + file_name[1])) sub_images.Add(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]);
+                        drv.Navigate().GoToUrl(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]);
+                        is_jpg_image = (drv.FindElements(By.XPath("//img[contains(@src,'https://manga24.ru/')]")).Count > 0) ? true : false;
+                        drv.Navigate().GoToUrl(path_to_dir + path_to_file + file_name[0] + ".png");
+                        is_png_image = (drv.FindElements(By.XPath("//img[contains(@src,'https://manga24.ru/')]")).Count > 0) ? true : false;
                     }
+                    if (!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]) && is_jpg_image) sub_images.Add(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]);
+                    if (!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + ".png") && is_png_image) sub_images.Add(path_to_dir + path_to_file + file_name[0] + ".png");
                     if (file_name[0].IndexOf("0") > -1)
                     {
-                        if (j / 10 < 1)
+                        if (j / 10.0 < 1.0)
                         {
-                            file_name[0] = "00" + j.ToString();
+                            file_name[0] = "00" + (j+1).ToString();
                         }
                         else
                         {
-                            file_name[0] = "0" + j.ToString();
+                            file_name[0] = "0" + (j+1).ToString();
                         }
                     }
-                    sub_images.Add(path_to_dir + path_to_file + file_name[0] +"."+ file_name[1]);
+                    drv.Navigate().GoToUrl(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]);
+                    is_jpg_image = (drv.FindElements(By.XPath("//img[contains(@src,'https://manga24.ru/')]")).Count > 0) ? true : false;
+                    drv.Navigate().GoToUrl(path_to_dir + path_to_file + file_name[0] + ".png");
+                    is_png_image = (drv.FindElements(By.XPath("//img[contains(@src,'https://manga24.ru/')]")).Count > 0) ? true : false;
+                    if (!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]) && is_jpg_image) sub_images.Add(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]);
+                    if (!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + ".png") && is_png_image) sub_images.Add(path_to_dir + path_to_file + file_name[0] + ".png");
+
                 }
                 bm.Images.Add(new List<string>(sub_images));
                 break;
