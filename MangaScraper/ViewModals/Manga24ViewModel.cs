@@ -31,7 +31,7 @@ namespace MangaScraper.ViewModals
                 get_title_info(drv, bm);
                 get_chapter_info(drv, bm);
                 get_images_from_chapters(drv, bm);
-                download_images_to_local_storage(bm);
+                //download_images_to_local_storage(bm);
                 create_directories_on_server(bm);
                 upload_images_to_server(bm);
             }
@@ -92,6 +92,7 @@ namespace MangaScraper.ViewModals
             for (int i = 0; i < chapter_number.Length; i++) //доделать скролинг таблицы с главами
             {
                 bm.Chapters.Add(link[i].GetAttribute("href") + "|" + chapter_number[i].Text + "|" + chapter_name[i].Text + "|" + translator[i].Text);
+                bm.Directories.Add(bm.EngTitle+"/"+ link[i].GetAttribute("href").Split("/")[4]);
                 break;
             }
 
@@ -107,7 +108,8 @@ namespace MangaScraper.ViewModals
             //обрезание строки и получение названия картинки https://manga24.ru/Content/pages/onepiece/1025/op_1024_000a.jpg -> 000а.jpg
             for (int i = 0; i < bm.Chapters.Count; i++) //проход по главам
             {
-                List<string> sub_images = new List<string>();
+                List<String> sub_images = new List<String>();
+                List<String> sub_path_image = new List<String>();
                 drv.Navigate().GoToUrl(bm.Chapters[i].Split("|")[0]);
                 int page_count = drv.FindElements(By.XPath("//select[@id='page']/option")).Count;
                 string[] _path_to_file = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring((drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1), drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Length - (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1)).Split(@"_");
@@ -123,7 +125,7 @@ namespace MangaScraper.ViewModals
                         l++;
                     }
                 }
-                string path_to_dir = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring(0, (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/")+1));
+                string path_to_dir = drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").Substring(0, (drv.FindElements(By.XPath("//div[@id='preload']/img"))[0].GetAttribute("src").LastIndexOf("/") + 1));
                 string[] file_name;
                 if (_path_to_file.Length > 0)
                 {
@@ -138,7 +140,7 @@ namespace MangaScraper.ViewModals
 
                 /// Формирование ссылки до картинки каждой главы путем получение первой ссылки на первую картинку.
                 /// После получения ссылки на первую картинку отпарвляются запросы к manga24 для получения расширения картинки
-                /// Далее формируется список с ссылками к картинкам
+                /// Далее формируется список с ссылками к картинкам и список с путем к картинкам
                 for (int j = 0; j < page_count-1; j++)
                 {
                     if (_path_to_file[_path_to_file.Length - 1].IndexOf("a") > -1)
@@ -167,8 +169,14 @@ namespace MangaScraper.ViewModals
                     is_png_image = (drv.FindElements(By.XPath("//img[contains(@src,'https://manga24.ru/')]")).Count > 0) ? true : false;
                     if (!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]) && is_jpg_image) sub_images.Add(path_to_dir + path_to_file + file_name[0] + "." + file_name[1]);
                     if (!sub_images.Contains(path_to_dir + path_to_file + file_name[0] + ".png") && is_png_image) sub_images.Add(path_to_dir + path_to_file + file_name[0] + ".png");
-
                 }
+                int k = 0;
+                while (k < sub_images.Count)
+                {
+                    sub_path_image.Add(bm.EngTitle + path_to_dir.Substring(path_to_dir.LastIndexOf("/", path_to_dir.LastIndexOf("/") - 1)) + sub_images[k].Split("/")[sub_images[k].Split("/").Length - 1].Split("_")[sub_images[k].Split("/")[sub_images[k].Split("/").Length - 1].Split("_").Length-1] );
+                    k++;
+                }
+                bm.PathImages.Add(new List<String>(sub_path_image));
                 bm.Images.Add(new List<string>(sub_images));
                 //break;
             }
@@ -185,7 +193,7 @@ namespace MangaScraper.ViewModals
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 WriteIndented = true
             };
-            json = JsonSerializer.Serialize(bm.PathImages, options); //формирование json строки для отправки на сервер
+            json = JsonSerializer.Serialize(bm.Directories, options); //формирование json строки для отправки на сервер
             using (var webClient = new WebClient())
             {
                 var pars = new NameValueCollection();
@@ -205,7 +213,7 @@ namespace MangaScraper.ViewModals
                     req.Method = WebRequestMethods.Ftp.UploadFile;
                     try
                     {
-                        using (Stream fileStream = File.OpenRead(@"A:MangaScraper/" + bm.PathImages[i][j] + "/" + (j + 1).ToString() + expansion))
+                        using (Stream fileStream = File.OpenRead(@"A:MangaScraper/" + bm.PathImages[i][j].Split("/")[0] + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + (j + 1).ToString() + expansion))
                         using (Stream ftpStream = req.GetRequestStream())
                         {
                             fileStream.CopyTo(ftpStream);
@@ -230,7 +238,7 @@ namespace MangaScraper.ViewModals
                 for (int j = 0; j < bm.Images[i].Count; j++)
                 {
                     exp = (bm.Images[i][j].IndexOf(".jpg")) > -1 ? ".jpg" : ".png";
-                    DirectoryInfo dir = new DirectoryInfo("A:MangaScraper/" + bm.PathImages[i][j] + "/");
+                    DirectoryInfo dir = new DirectoryInfo("D:MangaScraper/" + bm.PathImages[i][j].Split("/")[0] + "/" + bm.PathImages[i][j].Split("/")[1]);
                     if (!dir.Exists) dir.Create();
                     if (bm.Images[i][j].IndexOf(".jpg") > -1)
                     {
@@ -240,7 +248,7 @@ namespace MangaScraper.ViewModals
                     {
                         png += (j + 1) + ",";
                     }
-                    client.DownloadFile(bm.Images[i][j], "A:MangaScraper/" + bm.PathImages[i][j] + "/" + (j + 1).ToString() + exp);
+                    client.DownloadFile(bm.Images[i][j], "D:MangaScraper/" + bm.PathImages[i][j].Split("/")[0] + "/" + bm.PathImages[i][j].Split("/")[1] + "/" + (j + 1).ToString() + exp);
                     //break;
                 }
                 expansion.Add(Regex.Replace(jpg, @"\,$", "") + "|" + Regex.Replace(png, @"\,$", ""));

@@ -92,6 +92,10 @@ namespace MangaScraper
         /// </summary>
         private List<String> _genres = new List<String>();
         /// <summary>
+        /// Список директорий
+        /// </summary>
+        private List<String> _directories = new List<String>();
+        /// <summary>
         /// Переводчики
         /// </summary>
         private List<String> _tranlators = new List<String>();
@@ -312,6 +316,16 @@ namespace MangaScraper
             {
                 _genres = value;
                 OnPropertyChanged("Genres");
+            }
+        }
+
+        public List<String> Directories
+        {
+            get { return _directories; }
+            set
+            {
+                _directories = value;
+                OnPropertyChanged("Directories");
             }
         }
 
